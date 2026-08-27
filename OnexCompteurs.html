@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<!-- saved from url=(0054)file:///C:/Users/rv/Downloads/releves-compteurs_4.html -->
+<html lang="fr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Onex - Relevés des consommations</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Compteurs">
+<meta name="theme-color" content="#1C2321">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns=&#39;http://www.w3.org/2000/svg&#39; viewBox=&#39;0 0 100 100&#39;%3E%3Crect width=&#39;100&#39; height=&#39;100&#39; rx=&#39;22&#39; fill=&#39;%231C2321&#39;/%3E%3Ccircle cx=&#39;50&#39; cy=&#39;50&#39; r=&#39;30&#39; fill=&#39;none&#39; stroke=&#39;%23E8A33D&#39; stroke-width=&#39;5&#39;/%3E%3Cline x1=&#39;50&#39; y1=&#39;50&#39; x2=&#39;50&#39; y2=&#39;30&#39; stroke=&#39;%23E8A33D&#39; stroke-width=&#39;5&#39; stroke-linecap=&#39;round&#39;/%3E%3Cline x1=&#39;50&#39; y1=&#39;50&#39; x2=&#39;64&#39; y2=&#39;58&#39; stroke=&#39;%234FB8B0&#39; stroke-width=&#39;5&#39; stroke-linecap=&#39;round&#39;/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#1C2321;
+    --bg-raised:#242C29;
+    --line:#3A423F;
+    --text:#F2F0E9;
+    --text-dim:#9BA39D;
+    --eau:#3E8EDE;
+    --elec:#E0473E;
+    --pac:#E8873D;
+    --danger:#C1554B;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    padding-bottom:calc(env(safe-area-inset-bottom) + 24px);
+    padding-top:env(safe-area-inset-top);
+  }
+  .mono{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums;}
+
+  header{padding:26px 20px 16px;border-bottom:1px solid var(--line);}
+  header h1{margin:0;font-size:19px;font-weight:650;letter-spacing:0.01em;}
+  header .version{font-size:10.5px;color:var(--text-dim);margin-top:2px;}
+  header .sub{margin-top:4px;font-size:12.5px;color:var(--text-dim);}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle;}
+
+  main{padding:16px 16px 8px;max-width:560px;margin:0 auto;}
+
+  .banner{
+    background:linear-gradient(90deg, rgba(224,71,62,0.12), rgba(224,71,62,0.04));
+    border:1px solid rgba(224,71,62,0.4);
+    border-radius:var(--radius);
+    padding:12px 14px;
+    font-size:13px;
+    margin-bottom:16px;
+  }
+  .banner strong{color:var(--elec);font-weight:650;}
+
+  .card{
+    background:var(--bg-raised);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px;
+    margin-bottom:14px;
+  }
+  .card h2{
+    margin:0 0 12px;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--text-dim);
+    font-weight:650;
+  }
+  .card-summary{
+    margin:0 0 12px;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--text-dim);
+    font-weight:650;
+    cursor:pointer;list-style:none;user-select:none;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .card-summary::-webkit-details-marker{display:none;}
+  .card-summary::after{
+    content:'⌄';font-size:14px;transition:transform .15s;margin-left:8px;
+  }
+  details.section-details:not([open]) .card-summary,
+  details.card:not([open]) .card-summary{margin-bottom:0;}
+  details[open] > .card-summary::after{transform:rotate(180deg);}
+  .group-title{
+    font-size:12.5px;
+    font-weight:650;
+    margin:16px 0 8px;
+    display:flex;
+    align-items:center;
+  }
+  .group-title:first-child{margin-top:0;}
+
+  .group-details{margin-bottom:4px;}
+  .group-details summary.group-title{
+    cursor:pointer;list-style:none;margin:16px 0 8px;user-select:none;
+  }
+  .group-details summary.group-title::-webkit-details-marker{display:none;}
+  .group-details summary.group-title::after{
+    content:'⌄';margin-left:auto;color:var(--text-dim);font-size:14px;transition:transform .15s;
+  }
+  .group-details[open] summary.group-title::after{transform:rotate(180deg);}
+  .group-details:first-child summary.group-title{margin-top:0;}
+
+  .chart-block-details{border-bottom:1px solid var(--line);padding-bottom:2px;}
+  .chart-block-details:last-child{border-bottom:none;}
+  .chart-block-details summary{
+    cursor:pointer;list-style:none;user-select:none;
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:12px;color:var(--text-dim);padding:8px 0;
+  }
+  .chart-block-details summary::-webkit-details-marker{display:none;}
+  .chart-block-details summary::after{
+    content:'⌄';color:var(--text-dim);font-size:13px;transition:transform .15s;margin-left:8px;
+  }
+  .chart-block-details[open] summary::after{transform:rotate(180deg);}
+
+  .field{margin-bottom:10px;}
+  .field label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:5px;}
+  .field input[type=date],
+  .field input[type=number],
+  .field input[type=text]{
+    width:100%;
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:11px 12px;
+    color:var(--text);
+    font-size:16px;
+    font-family:inherit;
+  }
+  .field input:focus{outline:2px solid var(--eau);outline-offset:-1px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+  .input-photo{display:flex;gap:6px;align-items:stretch;}
+  .input-photo input{flex:1;min-width:0;}
+  .cam-btn{
+    flex-shrink:0;width:40px;
+    border:1px solid var(--line);border-radius:9px;background:var(--bg);
+    color:var(--text-dim);font-size:15px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    background-size:cover;background-position:center;
+    padding:0;
+  }
+  .cam-btn.has-photo{border-color:var(--eau);color:transparent;}
+  .ocr-status{font-size:10.5px;color:var(--text-dim);margin-top:4px;min-height:12px;}
+
+  .photo-row{display:flex;gap:8px;margin-top:6px;}
+  .photo-btn{
+    flex:1;border:1px dashed var(--line);border-radius:9px;background:transparent;
+    color:var(--text-dim);font-size:12px;padding:9px;text-align:center;cursor:pointer;
+  }
+  .photo-thumb{width:38px;height:38px;border-radius:7px;object-fit:cover;border:1px solid var(--line);flex-shrink:0;}
+
+  button.primary{
+    width:100%;background:var(--text);color:var(--bg);border:none;border-radius:10px;
+    padding:14px;font-size:15px;font-weight:650;cursor:pointer;margin-top:6px;
+  }
+  button.primary:active{opacity:0.85;}
+
+  .status-row{
+    display:flex;justify-content:space-between;align-items:baseline;
+    padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px;gap:10px;
+  }
+  .status-row:last-child{border-bottom:none;}
+  .status-row .name{color:var(--text-dim);display:flex;align-items:center;}
+  .status-row .vals{text-align:right;}
+  .status-row .monthly{font-weight:650;}
+  .status-row .raw{color:var(--text-dim);font-size:11.5px;margin-top:1px;}
+
+  .entry{border-bottom:1px solid var(--line);padding:12px 0;}
+  .entry:last-child{border-bottom:none;}
+  .entry .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  .entry .date{font-size:13px;font-weight:650;}
+  .entry .del{background:none;border:none;color:var(--text-dim);font-size:17px;padding:2px 4px;cursor:pointer;}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{
+    font-size:11.5px;background:var(--bg);border:1px solid var(--line);border-radius:7px;
+    padding:4px 8px 4px 4px;display:flex;align-items:center;gap:5px;
+  }
+  .chip img{width:20px;height:20px;border-radius:5px;object-fit:cover;}
+  .entry .thumbs{display:flex;gap:6px;margin-top:6px;}
+  .entry .thumbs img{width:30px;height:30px;border-radius:6px;object-fit:cover;border:1px solid var(--line);}
+
+  .empty{color:var(--text-dim);font-size:13px;text-align:center;padding:16px 0;}
+
+  .chart-block{margin-bottom:16px;}
+  .chart-block:last-child{margin-bottom:0;}
+  .chart-block .label{font-size:12px;color:var(--text-dim);margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;}
+
+  footer{text-align:center;font-size:11px;color:var(--text-dim);padding:18px 16px 0;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Onex - Relevés des consommations</h1>
+  <div class="version">v0 — 27.08.2026</div>
+  <div class="sub"><span class="dot" style="background:var(--eau)"></span>Eau &nbsp; <span class="dot" style="background:var(--elec)"></span>Élec &nbsp; <span class="dot" style="background:var(--pac)"></span>PAC</div>
+</header>
+
+<main>
+
+  <div id="banner"><div class="banner">⏱ Dernier relevé le <strong>19.07.2026</strong> (39 j). Relevé du mois à effectuer.</div></div>
+
+  <details open="" class="card section-details" data-key="releve">
+    <summary class="card-summary">Nouveau relevé</summary>
+    <div class="field">
+      <label for="f-date">Date du relevé</label>
+      <input type="date" id="f-date">
+    </div>
+
+    <details open="" class="group-details">
+      <summary class="group-title"><span class="dot" style="background:var(--eau)"></span>Eau (m³)</summary>
+      <div class="grid2" id="grid-eau">
+    <div class="field">
+      <label for="f-eauGlobal">Global</label>
+      <div class="input-photo">
+        <input type="number" id="f-eauGlobal" inputmode="decimal" step="0.01" placeholder="index">
+        <button type="button" class="cam-btn" id="cam-eauGlobal" title="Photo Global">📷</button>
+      </div>
+      <input type="file" accept="image/*" capture="environment" id="file-eauGlobal" style="display:none">
+      <div class="ocr-status" id="ocr-status-eauGlobal"></div>
+    </div>
+    <div class="field">
+      <label for="f-eauSous1">Arrosage</label>
+      <div class="input-photo">
+        <input type="number" id="f-eauSous1" inputmode="decimal" step="0.01" placeholder="index">
+        <button type="button" class="cam-btn" id="cam-eauSous1" title="Photo Arrosage">📷</button>
+      </div>
+      <input type="file" accept="image/*" capture="environment" id="file-eauSous1" style="display:none">
+      <div class="ocr-status" id="ocr-status-eauSous1"></div>
+    </div>
+    <div class="field">
+      <label for="f-eauSous2">Local</label>
+      <div class="input-photo">
+        <input type="number" id="f-eauSous2" inputmode="decimal" step="0.01" placeholder="index">
+        <button type="button" class="cam-btn" id="cam-eauSous2" title="Photo Local">📷</button>
+      </div>
+      <input type="file" accept="image/*" capture="environment" id="file-eauSous2" style="display:none">
+      <div class="ocr-status" id="ocr-status-eauSous2"></div>
+    </div>
+    <div class="field">
+      <label for="f-eauSous3">Piscine</label>
+      <div class="input-photo">
+        <input type="number" id="f-eauSous3" inputmode="decimal" step="0.01" placeholder="index">
+        <button type="button" class="cam-btn" id="cam-eauSous3" title="Photo Piscine">📷</button>
+      </div>
+      <input type="file" accept="image/*" capture="environment" id="file-eauSous3" style="display:none">
+      <div class="ocr-status" id="ocr-status-eauSous3"></div>
+    </div></div>
+    </details>
+
+    <details open="" class="group-details">
+      <summary class="group-title"><span class="dot" style="background:var(--elec)"></span>Électricité (kWh)</summary>
+      <div class="grid2" id="grid-elec">
+    <div class="field">
+      <label for="f-elecVoiture">Voiture</label>
+      <div class="input-photo">
+        <input type="number" id="f-elecVoiture" inputmode="decimal" step="0.01" placeholder="index">
+        <button type="button" class="cam-btn" id="cam-elecVoiture" title="Photo Voiture">📷</button>
+      </div>
+      <input type="file" accept="image/*" capture="environment" id="file-elecVoiture" style="display:none">
+      <div class="ocr-status" id="ocr-status-elecVoiture"></div>
+    </div>
+    <div class="field">
+      <label for="f-elecPiscine">Piscine</label>
+      <div class="input-photo">
+        <input type="number" id="f-elecPiscine" inputmode="decimal" step="0.01" placeholder="index">
+        <button type="button" class="cam-btn" id="cam-elecPiscine" title="Photo Piscine">📷</button>
+      </div>
+      <input type="file" accept="image/*" capture="environment" id="file-elecPiscine" style="display:none">
+      <div class="ocr-status" id="ocr-status-elecPiscine"></div>
+    </div>
+    <div class="field">
+      <label for="f-elecPac">PAC</label>
+      <div class="input-photo">
+        <input type="number" id="f-elecPac" inputmode="decimal" step="0.01" placeholder="index">
+        <button type="button" class="cam-btn" id="cam-elecPac" title="Photo PAC">📷</button>
+      </div>
+      <input type="file" accept="image/*" capture="environment" id="file-elecPac" style="display:none">
+      <div class="ocr-status" id="ocr-status-elecPac"></div>
+    </div></div>
+    </details>
+
+    <details open="" class="group-details">
+      <summary class="group-title"><span class="dot" style="background:var(--pac)"></span>PAC — chaleur (kWh th.)</summary>
+      <div class="grid2" id="grid-pac">
+    <div class="field">
+      <label for="f-pacChaleur">Chaleur</label>
+      <div class="input-photo">
+        <input type="number" id="f-pacChaleur" inputmode="decimal" step="0.01" placeholder="index">
+        <button type="button" class="cam-btn" id="cam-pacChaleur" title="Photo Chaleur">📷</button>
+      </div>
+      <input type="file" accept="image/*" capture="environment" id="file-pacChaleur" style="display:none">
+      <div class="ocr-status" id="ocr-status-pacChaleur"></div>
+    </div></div>
+    </details>
+
+    <div class="field" style="margin-top:14px">
+      <label for="f-note">Remarque (facultatif)</label>
+      <input type="text" id="f-note" placeholder="ex. panne PAC, fonctionnement sur élec">
+    </div>
+
+    <button class="primary" id="btn-save">Enregistrer le relevé</button>
+  </details>
+
+  <div class="card" id="chart-card" style="display: block;">
+    <details open="" class="section-details" data-key="graphiques">
+      <summary class="card-summary">Graphiques — comparaison mensuelle</summary>
+      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Axe janvier → décembre + colonne « Total » (cumul annuel) · une barre par année, côte à côte · valeur et millésime affichés au-dessus de chaque barre</div>
+      <div id="charts"><details open="" class="chart-block-details">
+      <summary><span><span class="dot" style="background:var(--eau)"></span>Eau · Global (m³/mois)</span></summary>
+      <div id="chart-eauGlobal"><svg viewBox="0 0 480 128" width="100%" height="128"><rect x="4" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="39.69230769230769" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="75.38461538461539" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="111.07692307692308" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="146.76923076923077" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="182.46153846153845" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="218.15384615384616" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="253.84615384615387" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="289.53846153846155" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="325.2307692307692" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="360.9230769230769" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="396.61538461538464" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="440.3076923076923" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.04)"></rect><line x1="4" y1="112" x2="476" y2="112" stroke="var(--line)" stroke-width="1"></line><rect x="23.01686153846154" y="106.71326769447273" width="13.463138461538461" height="5.286732305527261" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="29.748430769230772" y="104.71326769447273" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">8</text>
+      <text x="21.846153846153847" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jan</text><rect x="58.70916923076923" y="103.86680511372226" width="13.463138461538461" height="8.133194886277737" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="65.44073846153846" y="101.86680511372226" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">13</text>
+      <text x="57.53846153846154" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Fév</text><rect x="94.40147692307693" y="102.99539137590679" width="13.463138461538461" height="9.004608624093208" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="101.13304615384615" y="100.99539137590679" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">14</text>
+      <text x="93.23076923076923" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Mar</text><rect x="130.0937846153846" y="101.27490784227112" width="13.463138461538461" height="10.725092157728886" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="136.82535384615383" y="99.27490784227112" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">17</text>
+      <text x="128.92307692307693" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Avr</text><rect x="165.78609230769231" y="79.33315680291744" width="13.463138461538461" height="32.66684319708256" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="172.51766153846154" y="77.33315680291744" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">51</text>
+      <text x="164.6153846153846" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Mai</text><rect x="185.67384615384614" y="106.91711358223763" width="13.463138461538461" height="5.082886417762372" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="192.40541538461537" y="104.91711358223763" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">8</text><rect x="201.4784" y="72.36232230341486" width="13.463138461538461" height="39.63767769658514" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="208.20996923076922" y="70.36232230341486" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">62</text>
+      <text x="200.3076923076923" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jun</text><rect x="221.36615384615385" y="35.3757455289811" width="13.463138461538461" height="76.6242544710189" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="228.09772307692307" y="33.3757455289811" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">120</text><rect x="237.1707076923077" y="86.62425447101889" width="13.463138461538461" height="25.37574552898111" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="243.90227692307693" y="84.62425447101889" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">40</text>
+      <text x="236" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jul</text><rect x="257.0584615384616" y="67.72933592636272" width="13.463138461538461" height="44.27066407363727" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="263.79003076923084" y="65.72933592636272" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">69</text>
+      <text x="271.69230769230774" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Aoû</text><rect x="292.75076923076927" y="99.880326662595" width="13.463138461538461" height="12.119673337404997" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="299.4823384615385" y="97.880326662595" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">19</text>
+      <text x="307.3846153846154" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Sep</text><rect x="328.44307692307694" y="107.49910746936304" width="13.463138461538461" height="4.500892530636954" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="335.1746461538462" y="105.49910746936304" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">7</text>
+      <text x="343.0769230769231" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Oct</text><rect x="364.1353846153846" y="105.97714041142463" width="13.463138461538461" height="6.022859588575366" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="370.8669538461539" y="103.97714041142463" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">9</text>
+      <text x="378.7692307692308" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Nov</text><rect x="399.82769230769236" y="105.77637842513879" width="13.463138461538461" height="6.223621574861211" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="406.5592615384616" y="103.77637842513879" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">10</text>
+      <text x="414.4615384615385" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Déc</text>
+    <line x1="436.3076923076923" y1="6" x2="436.3076923076923" y2="116" stroke="var(--line)" stroke-width="1"></line>
+    <rect x="443.52000000000004" y="10" width="13.463138461538461" height="102" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="450.2515692307693" y="8" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">242</text><rect x="459.3245538461539" y="25.81922578255235" width="13.463138461538461" height="86.18077421744765" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="466.05612307692314" y="23.81922578255235" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">204</text>
+    <text x="458.1538461538462" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle" font-weight="650">Total</text></svg>
+    <div style="display:flex;gap:14px;font-size:10.5px;color:var(--text-dim);margin-top:2px;flex-wrap:wrap;"><span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--eau);opacity:0.30;margin-right:4px;vertical-align:middle;"></span>2025</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--eau);opacity:1.00;margin-right:4px;vertical-align:middle;"></span>2026</span></div></div>
+    </details><details open="" class="chart-block-details">
+      <summary><span><span class="dot" style="background:var(--eau)"></span>Eau · Arrosage (m³/mois)</span></summary>
+      <div id="chart-eauSous1"><svg viewBox="0 0 480 128" width="100%" height="128"><rect x="4" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="39.69230769230769" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="75.38461538461539" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="111.07692307692308" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="146.76923076923077" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="182.46153846153845" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="218.15384615384616" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="253.84615384615387" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="289.53846153846155" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="325.2307692307692" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="360.9230769230769" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="396.61538461538464" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="440.3076923076923" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.04)"></rect><line x1="4" y1="112" x2="476" y2="112" stroke="var(--line)" stroke-width="1"></line><rect x="23.01686153846154" y="111" width="13.463138461538461" height="1" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="29.748430769230772" y="109" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="21.846153846153847" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jan</text><rect x="58.70916923076923" y="107.2190396680395" width="13.463138461538461" height="4.780960331960496" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="65.44073846153846" y="105.2190396680395" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">2</text>
+      <text x="57.53846153846154" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Fév</text><rect x="94.40147692307693" y="106.70679391818659" width="13.463138461538461" height="5.293206081813408" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="101.13304615384615" y="104.70679391818659" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">3</text>
+      <text x="93.23076923076923" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Mar</text><rect x="130.0937846153846" y="101.24425429659678" width="13.463138461538461" height="10.755745703403226" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="136.82535384615383" y="99.24425429659678" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">5</text>
+      <text x="128.92307692307693" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Avr</text><rect x="165.78609230769231" y="34.07544074567237" width="13.463138461538461" height="77.92455925432763" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="172.51766153846154" y="32.07544074567237" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">38</text>
+      <text x="164.6153846153846" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Mai</text><rect x="201.4784" y="10.844450689860295" width="13.463138461538461" height="101.1555493101397" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="208.20996923076922" y="8.844450689860295" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">50</text>
+      <text x="200.3076923076923" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jun</text><rect x="221.36615384615385" y="105.24346205059919" width="13.463138461538461" height="6.756537949400803" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="228.09772307692307" y="103.24346205059919" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">3</text><rect x="237.1707076923077" y="47.22613253250978" width="13.463138461538461" height="64.77386746749022" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="243.90227692307693" y="45.22613253250978" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">32</text>
+      <text x="236" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jul</text><rect x="257.0584615384616" y="10" width="13.463138461538461" height="102" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="263.79003076923084" y="8" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">50</text>
+      <text x="271.69230769230774" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Aoû</text><rect x="292.75076923076927" y="94.39786950732356" width="13.463138461538461" height="17.602130492676437" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="299.4823384615385" y="92.39786950732356" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">9</text>
+      <text x="307.3846153846154" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Sep</text><rect x="328.44307692307694" y="110.98588548601865" width="13.463138461538461" height="1.0141145139813588" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="335.1746461538462" y="108.98588548601865" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">1</text>
+      <text x="343.0769230769231" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Oct</text><rect x="364.1353846153846" y="111" width="13.463138461538461" height="1" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="370.8669538461539" y="109" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="378.7692307692308" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Nov</text><rect x="399.82769230769236" y="111" width="13.463138461538461" height="1" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="406.5592615384616" y="109" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="414.4615384615385" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Déc</text>
+    <line x1="436.3076923076923" y1="6" x2="436.3076923076923" y2="116" stroke="var(--line)" stroke-width="1"></line>
+    <rect x="443.52000000000004" y="62.91494252873567" width="13.463138461538461" height="49.08505747126433" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="450.2515692307693" y="60.91494252873567" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">63</text><rect x="459.3245538461539" y="10" width="13.463138461538461" height="102" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="466.05612307692314" y="8" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">131</text>
+    <text x="458.1538461538462" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle" font-weight="650">Total</text></svg>
+    <div style="display:flex;gap:14px;font-size:10.5px;color:var(--text-dim);margin-top:2px;flex-wrap:wrap;"><span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--eau);opacity:0.30;margin-right:4px;vertical-align:middle;"></span>2025</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--eau);opacity:1.00;margin-right:4px;vertical-align:middle;"></span>2026</span></div></div>
+    </details><details open="" class="chart-block-details">
+      <summary><span><span class="dot" style="background:var(--eau)"></span>Eau · Local (m³/mois)</span></summary>
+      <div id="chart-eauSous2"><svg viewBox="0 0 480 128" width="100%" height="128"><rect x="4" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="39.69230769230769" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="75.38461538461539" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="111.07692307692308" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="146.76923076923077" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="182.46153846153845" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="218.15384615384616" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="253.84615384615387" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="289.53846153846155" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="325.2307692307692" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="360.9230769230769" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="396.61538461538464" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="440.3076923076923" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.04)"></rect><line x1="4" y1="112" x2="476" y2="112" stroke="var(--line)" stroke-width="1"></line><rect x="23.01686153846154" y="111" width="13.463138461538461" height="1" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="29.748430769230772" y="109" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="21.846153846153847" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jan</text><rect x="58.70916923076923" y="19.87096774193546" width="13.463138461538461" height="92.12903225806454" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="65.44073846153846" y="17.87096774193546" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">1</text>
+      <text x="57.53846153846154" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Fév</text><rect x="94.40147692307693" y="10" width="13.463138461538461" height="102" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="101.13304615384615" y="8" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">1</text>
+      <text x="93.23076923076923" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Mar</text><rect x="130.0937846153846" y="22.537096774193543" width="13.463138461538461" height="89.46290322580646" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="136.82535384615383" y="20.537096774193543" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">1</text>
+      <text x="128.92307692307693" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Avr</text><rect x="165.78609230769231" y="109.29516129032258" width="13.463138461538461" height="2.7048387096774213" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="172.51766153846154" y="107.29516129032258" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="164.6153846153846" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Mai</text><rect x="201.4784" y="108.03349347975292" width="13.463138461538461" height="3.9665065202470853" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="208.20996923076922" y="106.03349347975292" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="200.3076923076923" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jun</text><rect x="221.36615384615385" y="111" width="13.463138461538461" height="1" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="228.09772307692307" y="109" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text><rect x="237.1707076923077" y="109.30844200411805" width="13.463138461538461" height="2.691557995881951" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="243.90227692307693" y="107.30844200411805" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="236" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jul</text><rect x="257.0584615384616" y="111" width="13.463138461538461" height="1" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="263.79003076923084" y="109" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="271.69230769230774" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Aoû</text><rect x="292.75076923076927" y="111" width="13.463138461538461" height="1" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="299.4823384615385" y="109" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="307.3846153846154" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Sep</text><rect x="328.44307692307694" y="111" width="13.463138461538461" height="1" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="335.1746461538462" y="109" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="343.0769230769231" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Oct</text><rect x="364.1353846153846" y="111" width="13.463138461538461" height="1" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="370.8669538461539" y="109" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="378.7692307692308" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Nov</text><rect x="399.82769230769236" y="111" width="13.463138461538461" height="1" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="406.5592615384616" y="109" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="414.4615384615385" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Déc</text>
+    <line x1="436.3076923076923" y1="6" x2="436.3076923076923" y2="116" stroke="var(--line)" stroke-width="1"></line>
+    <rect x="443.52000000000004" y="111" width="13.463138461538461" height="1" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="450.2515692307693" y="109" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text><rect x="459.3245538461539" y="10" width="13.463138461538461" height="102" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="466.05612307692314" y="8" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">2</text>
+    <text x="458.1538461538462" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle" font-weight="650">Total</text></svg>
+    <div style="display:flex;gap:14px;font-size:10.5px;color:var(--text-dim);margin-top:2px;flex-wrap:wrap;"><span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--eau);opacity:0.30;margin-right:4px;vertical-align:middle;"></span>2025</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--eau);opacity:1.00;margin-right:4px;vertical-align:middle;"></span>2026</span></div></div>
+    </details><details open="" class="chart-block-details">
+      <summary><span><span class="dot" style="background:var(--eau)"></span>Eau · Piscine (m³/mois)</span></summary>
+      <div id="chart-eauSous3"><svg viewBox="0 0 480 128" width="100%" height="128"><rect x="4" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="39.69230769230769" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="75.38461538461539" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="111.07692307692308" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="146.76923076923077" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="182.46153846153845" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="218.15384615384616" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="253.84615384615387" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="289.53846153846155" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="325.2307692307692" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="360.9230769230769" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="396.61538461538464" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="440.3076923076923" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.04)"></rect><line x1="4" y1="112" x2="476" y2="112" stroke="var(--line)" stroke-width="1"></line><rect x="23.01686153846154" y="111" width="13.463138461538461" height="1" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="29.748430769230772" y="109" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="21.846153846153847" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jan</text><rect x="58.70916923076923" y="111" width="13.463138461538461" height="1" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="65.44073846153846" y="109" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="57.53846153846154" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Fév</text><rect x="94.40147692307693" y="111" width="13.463138461538461" height="1" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="101.13304615384615" y="109" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="93.23076923076923" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Mar</text><rect x="130.0937846153846" y="107.96908350042041" width="13.463138461538461" height="4.030916499579588" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="136.82535384615383" y="105.96908350042041" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="128.92307692307693" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Avr</text><rect x="165.78609230769231" y="78.71909967013778" width="13.463138461538461" height="33.28090032986223" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="172.51766153846154" y="76.71909967013778" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">2</text>
+      <text x="164.6153846153846" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Mai</text><rect x="201.4784" y="10" width="13.463138461538461" height="102" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="208.20996923076922" y="8" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">5</text>
+      <text x="200.3076923076923" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jun</text><rect x="221.36615384615385" y="111" width="13.463138461538461" height="1" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="228.09772307692307" y="109" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text><rect x="237.1707076923077" y="43.97800918439947" width="13.463138461538461" height="68.02199081560053" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="243.90227692307693" y="41.97800918439947" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">3</text>
+      <text x="236" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jul</text><rect x="257.0584615384616" y="104.13749803653431" width="13.463138461538461" height="7.862501963465686" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="263.79003076923084" y="102.13749803653431" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="271.69230769230774" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Aoû</text><rect x="292.75076923076927" y="109.01003446459755" width="13.463138461538461" height="2.989965535402441" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="299.4823384615385" y="107.01003446459755" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="307.3846153846154" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Sep</text><rect x="328.44307692307694" y="111" width="13.463138461538461" height="1" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="335.1746461538462" y="109" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="343.0769230769231" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Oct</text><rect x="364.1353846153846" y="111" width="13.463138461538461" height="1" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="370.8669538461539" y="109" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="378.7692307692308" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Nov</text><rect x="399.82769230769236" y="111" width="13.463138461538461" height="1" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="406.5592615384616" y="109" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">0</text>
+      <text x="414.4615384615385" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Déc</text>
+    <line x1="436.3076923076923" y1="6" x2="436.3076923076923" y2="116" stroke="var(--line)" stroke-width="1"></line>
+    <rect x="443.52000000000004" y="106.40677966101694" width="13.463138461538461" height="5.5932203389830555" rx="1.5" fill="var(--eau)" opacity="0.30"></rect><text x="450.2515692307693" y="104.40677966101694" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">1</text><rect x="459.3245538461539" y="10" width="13.463138461538461" height="102" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="466.05612307692314" y="8" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">10</text>
+    <text x="458.1538461538462" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle" font-weight="650">Total</text></svg>
+    <div style="display:flex;gap:14px;font-size:10.5px;color:var(--text-dim);margin-top:2px;flex-wrap:wrap;"><span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--eau);opacity:0.30;margin-right:4px;vertical-align:middle;"></span>2025</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--eau);opacity:1.00;margin-right:4px;vertical-align:middle;"></span>2026</span></div></div>
+    </details><details open="" class="chart-block-details">
+      <summary><span><span class="dot" style="background:var(--elec)"></span>Élec · Voiture (kWh/mois)</span></summary>
+      <div id="chart-elecVoiture"><svg viewBox="0 0 480 128" width="100%" height="128"><rect x="4" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="39.69230769230769" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="75.38461538461539" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="111.07692307692308" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="146.76923076923077" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="182.46153846153845" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="218.15384615384616" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="253.84615384615387" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="289.53846153846155" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="325.2307692307692" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="360.9230769230769" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="396.61538461538464" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="440.3076923076923" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.04)"></rect><line x1="4" y1="112" x2="476" y2="112" stroke="var(--line)" stroke-width="1"></line><rect x="23.01686153846154" y="48.34545820857175" width="13.463138461538461" height="63.65454179142825" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="29.748430769230772" y="46.34545820857175" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">278</text>
+      <text x="21.846153846153847" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jan</text><rect x="58.70916923076923" y="46.403567302639516" width="13.463138461538461" height="65.59643269736048" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="65.44073846153846" y="44.403567302639516" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">287</text>
+      <text x="57.53846153846154" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Fév</text><rect x="94.40147692307693" y="39.37537808506518" width="13.463138461538461" height="72.62462191493482" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="101.13304615384615" y="37.37537808506518" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">317</text>
+      <text x="93.23076923076923" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Mar</text><rect x="130.0937846153846" y="42.30711800016131" width="13.463138461538461" height="69.69288199983869" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="136.82535384615383" y="40.30711800016131" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">304</text>
+      <text x="128.92307692307693" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Avr</text><rect x="165.78609230769231" y="48.0374881860813" width="13.463138461538461" height="63.9625118139187" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="172.51766153846154" y="46.0374881860813" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">279</text>
+      <text x="164.6153846153846" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Mai</text><rect x="185.67384615384614" y="106.76224713823412" width="13.463138461538461" height="5.237752861765881" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="192.40541538461537" y="104.76224713823412" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">23</text><rect x="201.4784" y="74.98583304160607" width="13.463138461538461" height="37.014166958393936" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="208.20996923076922" y="72.98583304160607" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">162</text>
+      <text x="200.3076923076923" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jun</text><rect x="221.36615384615385" y="32.39799166607821" width="13.463138461538461" height="79.60200833392179" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="228.09772307692307" y="30.397991666078212" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">348</text><rect x="237.1707076923077" y="89.60200833392179" width="13.463138461538461" height="22.397991666078205" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="243.90227692307693" y="87.60200833392179" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">98</text>
+      <text x="236" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jul</text><rect x="257.0584615384616" y="55.40677086710327" width="13.463138461538461" height="56.59322913289673" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="263.79003076923084" y="53.40677086710327" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">247</text>
+      <text x="271.69230769230774" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Aoû</text><rect x="292.75076923076927" y="61.61986317797652" width="13.463138461538461" height="50.38013682202348" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="299.4823384615385" y="59.61986317797652" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">220</text>
+      <text x="307.3846153846154" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Sep</text><rect x="328.44307692307694" y="63.184743863685355" width="13.463138461538461" height="48.815256136314645" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="335.1746461538462" y="61.184743863685355" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">213</text>
+      <text x="343.0769230769231" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Oct</text><rect x="364.1353846153846" y="60.43531052004233" width="13.463138461538461" height="51.56468947995767" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="370.8669538461539" y="58.43531052004233" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">225</text>
+      <text x="378.7692307692308" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Nov</text><rect x="399.82769230769236" y="58.716487537377084" width="13.463138461538461" height="53.283512462622916" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="406.5592615384616" y="56.716487537377084" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">233</text>
+      <text x="414.4615384615385" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Déc</text>
+    <line x1="436.3076923076923" y1="6" x2="436.3076923076923" y2="116" stroke="var(--line)" stroke-width="1"></line>
+    <rect x="443.52000000000004" y="22.775483011325804" width="13.463138461538461" height="89.2245169886742" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="450.2515692307693" y="20.775483011325804" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">1509</text><rect x="459.3245538461539" y="10" width="13.463138461538461" height="102" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="466.05612307692314" y="8" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">1725</text>
+    <text x="458.1538461538462" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle" font-weight="650">Total</text></svg>
+    <div style="display:flex;gap:14px;font-size:10.5px;color:var(--text-dim);margin-top:2px;flex-wrap:wrap;"><span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--elec);opacity:0.30;margin-right:4px;vertical-align:middle;"></span>2025</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--elec);opacity:1.00;margin-right:4px;vertical-align:middle;"></span>2026</span></div></div>
+    </details><details open="" class="chart-block-details">
+      <summary><span><span class="dot" style="background:var(--elec)"></span>Élec · Piscine (kWh/mois)</span></summary>
+      <div id="chart-elecPiscine"><svg viewBox="0 0 480 128" width="100%" height="128"><rect x="4" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="39.69230769230769" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="75.38461538461539" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="111.07692307692308" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="146.76923076923077" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="182.46153846153845" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="218.15384615384616" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="253.84615384615387" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="289.53846153846155" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="325.2307692307692" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="360.9230769230769" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="396.61538461538464" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="440.3076923076923" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.04)"></rect><line x1="4" y1="112" x2="476" y2="112" stroke="var(--line)" stroke-width="1"></line><rect x="23.01686153846154" y="88.72652143464154" width="13.463138461538461" height="23.273478565358467" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="29.748430769230772" y="86.72652143464154" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">200</text>
+      <text x="21.846153846153847" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jan</text><rect x="58.70916923076923" y="93.61517279290548" width="13.463138461538461" height="18.384827207094517" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="65.44073846153846" y="91.61517279290548" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">158</text>
+      <text x="57.53846153846154" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Fév</text><rect x="94.40147692307693" y="91.64536987785965" width="13.463138461538461" height="20.354630122140357" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="101.13304615384615" y="89.64536987785965" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">175</text>
+      <text x="93.23076923076923" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Mar</text><rect x="130.0937846153846" y="87.26425066242821" width="13.463138461538461" height="24.735749337571786" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="136.82535384615383" y="85.26425066242821" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">212</text>
+      <text x="128.92307692307693" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Avr</text><rect x="165.78609230769231" y="59.629134199127854" width="13.463138461538461" height="52.370865800872146" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="172.51766153846154" y="57.629134199127854" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">450</text>
+      <text x="164.6153846153846" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Mai</text><rect x="185.67384615384614" y="107.5231474021244" width="13.463138461538461" height="4.476852597875609" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="192.40541538461537" y="105.5231474021244" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">38</text><rect x="201.4784" y="61.62621867571372" width="13.463138461538461" height="50.37378132428628" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="208.20996923076922" y="59.62621867571372" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">433</text>
+      <text x="200.3076923076923" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jun</text><rect x="221.36615384615385" y="42.523106712886886" width="13.463138461538461" height="69.47689328711311" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="228.09772307692307" y="40.523106712886886" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">597</text><rect x="237.1707076923077" y="79.47689328711311" width="13.463138461538461" height="32.523106712886886" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="243.90227692307693" y="77.47689328711311" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">279</text>
+      <text x="236" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jul</text><rect x="257.0584615384616" y="41.12120639748973" width="13.463138461538461" height="70.87879360251027" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="263.79003076923084" y="39.12120639748973" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">609</text>
+      <text x="271.69230769230774" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Aoû</text><rect x="292.75076923076927" y="41.44034444709108" width="13.463138461538461" height="70.55965555290892" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="299.4823384615385" y="39.44034444709108" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">606</text>
+      <text x="307.3846153846154" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Sep</text><rect x="328.44307692307694" y="79.81368102833046" width="13.463138461538461" height="32.186318971669536" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="335.1746461538462" y="77.81368102833046" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">276</text>
+      <text x="343.0769230769231" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Oct</text><rect x="364.1353846153846" y="93.75378743102635" width="13.463138461538461" height="18.246212568973643" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="370.8669538461539" y="91.75378743102635" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">157</text>
+      <text x="378.7692307692308" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Nov</text><rect x="399.82769230769236" y="93.14558034539391" width="13.463138461538461" height="18.854419654606097" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="406.5592615384616" y="91.14558034539391" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">162</text>
+      <text x="414.4615384615385" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Déc</text>
+    <line x1="436.3076923076923" y1="6" x2="436.3076923076923" y2="116" stroke="var(--line)" stroke-width="1"></line>
+    <rect x="443.52000000000004" y="10" width="13.463138461538461" height="102" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="450.2515692307693" y="8" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">2445</text><rect x="459.3245538461539" y="32.45192953327397" width="13.463138461538461" height="79.54807046672603" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="466.05612307692314" y="30.45192953327397" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">1907</text>
+    <text x="458.1538461538462" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle" font-weight="650">Total</text></svg>
+    <div style="display:flex;gap:14px;font-size:10.5px;color:var(--text-dim);margin-top:2px;flex-wrap:wrap;"><span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--elec);opacity:0.30;margin-right:4px;vertical-align:middle;"></span>2025</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--elec);opacity:1.00;margin-right:4px;vertical-align:middle;"></span>2026</span></div></div>
+    </details><details open="" class="chart-block-details">
+      <summary><span><span class="dot" style="background:var(--elec)"></span>Élec · PAC (kWh/mois)</span></summary>
+      <div id="chart-elecPac"><svg viewBox="0 0 480 128" width="100%" height="128"><rect x="4" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="39.69230769230769" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="75.38461538461539" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="111.07692307692308" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="146.76923076923077" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="182.46153846153845" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="218.15384615384616" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="253.84615384615387" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="289.53846153846155" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="325.2307692307692" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="360.9230769230769" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="396.61538461538464" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="440.3076923076923" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.04)"></rect><line x1="4" y1="112" x2="476" y2="112" stroke="var(--line)" stroke-width="1"></line><rect x="23.01686153846154" y="58.85199213234728" width="13.463138461538461" height="53.14800786765272" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="29.748430769230772" y="56.85199213234728" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">849</text>
+      <text x="21.846153846153847" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jan</text><rect x="42.90461538461538" y="29.95180654112984" width="13.463138461538461" height="82.04819345887016" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="49.636184615384614" y="27.95180654112984" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">1311</text><rect x="58.70916923076923" y="92.04819345887016" width="13.463138461538461" height="19.951806541129844" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="65.44073846153846" y="90.04819345887016" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">319</text>
+      <text x="57.53846153846154" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Fév</text><rect x="78.59692307692308" y="70.46850404540952" width="13.463138461538461" height="41.53149595459048" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="85.3284923076923" y="68.46850404540952" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">663</text><rect x="94.40147692307693" y="89.91049990089195" width="13.463138461538461" height="22.089500099108044" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="101.13304615384615" y="87.91049990089195" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">353</text>
+      <text x="93.23076923076923" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Mar</text><rect x="114.28923076923077" y="103.2596862848613" width="13.463138461538461" height="8.740313715138697" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="121.0208" y="101.2596862848613" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">140</text><rect x="130.0937846153846" y="91.84530545094151" width="13.463138461538461" height="20.154694549058483" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="136.82535384615383" y="89.84530545094151" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">322</text>
+      <text x="128.92307692307693" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Avr</text><rect x="149.98153846153846" y="105.15599316422468" width="13.463138461538461" height="6.844006835775324" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="156.7131076923077" y="103.15599316422468" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">109</text><rect x="165.78609230769231" y="104.20222231912784" width="13.463138461538461" height="7.797777680872159" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="172.51766153846154" y="102.20222231912784" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">125</text>
+      <text x="164.6153846153846" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Mai</text><rect x="185.67384615384614" y="105.54774427813152" width="13.463138461538461" height="6.452255721868487" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="192.40541538461537" y="103.54774427813152" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">103</text><rect x="201.4784" y="106.76385792885308" width="13.463138461538461" height="5.236142071146917" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="208.20996923076922" y="104.76385792885308" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">84</text>
+      <text x="200.3076923076923" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jun</text><rect x="221.36615384615385" y="107.79893862975159" width="13.463138461538461" height="4.201061370248412" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="228.09772307692307" y="105.79893862975159" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">67</text><rect x="237.1707076923077" y="108.73573501465533" width="13.463138461538461" height="3.264264985344666" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="243.90227692307693" y="106.73573501465533" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">52</text>
+      <text x="236" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jul</text><rect x="257.0584615384616" y="107.58984377743168" width="13.463138461538461" height="4.410156222568315" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="263.79003076923084" y="105.58984377743168" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">70</text>
+      <text x="271.69230769230774" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Aoû</text><rect x="292.75076923076927" y="104.38173596488744" width="13.463138461538461" height="7.618264035112558" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="299.4823384615385" y="102.38173596488744" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">122</text>
+      <text x="307.3846153846154" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Sep</text><rect x="328.44307692307694" y="98.14145712586719" width="13.463138461538461" height="13.858542874132807" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="335.1746461538462" y="96.14145712586719" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">221</text>
+      <text x="343.0769230769231" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Oct</text><rect x="364.1353846153846" y="81.98567611496532" width="13.463138461538461" height="30.014323885034685" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="370.8669538461539" y="79.98567611496532" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">479</text>
+      <text x="378.7692307692308" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Nov</text><rect x="399.82769230769236" y="68.9707218418846" width="13.463138461538461" height="43.0292781581154" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="406.5592615384616" y="66.9707218418846" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">687</text>
+      <text x="414.4615384615385" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Déc</text>
+    <line x1="436.3076923076923" y1="6" x2="436.3076923076923" y2="116" stroke="var(--line)" stroke-width="1"></line>
+    <rect x="443.52000000000004" y="10" width="13.463138461538461" height="102" rx="1.5" fill="var(--elec)" opacity="0.30"></rect><text x="450.2515692307693" y="8" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">3974</text><rect x="459.3245538461539" y="58.01962795919548" width="13.463138461538461" height="53.98037204080452" rx="1.5" fill="var(--elec)" opacity="1.00"></rect><text x="466.05612307692314" y="56.01962795919548" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">2103</text>
+    <text x="458.1538461538462" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle" font-weight="650">Total</text></svg>
+    <div style="display:flex;gap:14px;font-size:10.5px;color:var(--text-dim);margin-top:2px;flex-wrap:wrap;"><span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--elec);opacity:0.30;margin-right:4px;vertical-align:middle;"></span>2025</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--elec);opacity:1.00;margin-right:4px;vertical-align:middle;"></span>2026</span></div></div>
+    </details><details open="" class="chart-block-details">
+      <summary><span><span class="dot" style="background:var(--pac)"></span>PAC · Chaleur (kWh th./mois)</span></summary>
+      <div id="chart-pacChaleur"><svg viewBox="0 0 480 128" width="100%" height="128"><rect x="4" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="39.69230769230769" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="75.38461538461539" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="111.07692307692308" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="146.76923076923077" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="182.46153846153845" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="218.15384615384616" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="253.84615384615387" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="289.53846153846155" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="325.2307692307692" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="360.9230769230769" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="396.61538461538464" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="440.3076923076923" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.04)"></rect><line x1="4" y1="112" x2="476" y2="112" stroke="var(--line)" stroke-width="1"></line><rect x="23.01686153846154" y="28.175719141119416" width="13.463138461538461" height="83.82428085888058" rx="1.5" fill="var(--pac)" opacity="1.00"></rect><text x="29.748430769230772" y="26.175719141119416" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">2470</text>
+      <text x="21.846153846153847" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jan</text><rect x="42.90461538461538" y="60.48747184826054" width="13.463138461538461" height="51.51252815173946" rx="1.5" fill="var(--pac)" opacity="0.30"></rect><text x="49.636184615384614" y="58.48747184826054" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">1518</text><rect x="58.70916923076923" y="75.28337073611864" width="13.463138461538461" height="36.71662926388136" rx="1.5" fill="var(--pac)" opacity="1.00"></rect><text x="65.44073846153846" y="73.28337073611864" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">1082</text>
+      <text x="57.53846153846154" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Fév</text><rect x="78.59692307692308" y="50.65055382786865" width="13.463138461538461" height="61.34944617213135" rx="1.5" fill="var(--pac)" opacity="0.30"></rect><text x="85.3284923076923" y="48.65055382786865" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">1808</text><rect x="94.40147692307693" y="71.34944617213135" width="13.463138461538461" height="40.65055382786865" rx="1.5" fill="var(--pac)" opacity="1.00"></rect><text x="101.13304615384615" y="69.34944617213135" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">1198</text>
+      <text x="93.23076923076923" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Mar</text><rect x="114.28923076923077" y="97.00311747468494" width="13.463138461538461" height="14.996882525315053" rx="1.5" fill="var(--pac)" opacity="0.30"></rect><text x="121.0208" y="95.00311747468494" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">442</text><rect x="130.0937846153846" y="75.02297365801039" width="13.463138461538461" height="36.97702634198961" rx="1.5" fill="var(--pac)" opacity="1.00"></rect><text x="136.82535384615383" y="73.02297365801039" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">1090</text>
+      <text x="128.92307692307693" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Avr</text><rect x="149.98153846153846" y="101.79231402036895" width="13.463138461538461" height="10.207685979631057" rx="1.5" fill="var(--pac)" opacity="0.30"></rect><text x="156.7131076923077" y="99.79231402036895" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">301</text><rect x="165.78609230769231" y="99.11116839405179" width="13.463138461538461" height="12.888831605948214" rx="1.5" fill="var(--pac)" opacity="1.00"></rect><text x="172.51766153846154" y="97.11116839405179" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">380</text>
+      <text x="164.6153846153846" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Mai</text><rect x="185.67384615384614" y="102.44735348397045" width="13.463138461538461" height="9.55264651602956" rx="1.5" fill="var(--pac)" opacity="0.30"></rect><text x="192.40541538461537" y="100.44735348397045" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">281</text><rect x="201.4784" y="104.61235795717576" width="13.463138461538461" height="7.387642042824235" rx="1.5" fill="var(--pac)" opacity="1.00"></rect><text x="208.20996923076922" y="102.61235795717576" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">218</text>
+      <text x="200.3076923076923" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jun</text><rect x="221.36615384615385" y="106.83077215383928" width="13.463138461538461" height="5.169227846160727" rx="1.5" fill="var(--pac)" opacity="0.30"></rect><text x="228.09772307692307" y="104.83077215383928" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">152</text><rect x="237.1707076923077" y="107.44522729211974" width="13.463138461538461" height="4.554772707880254" rx="1.5" fill="var(--pac)" opacity="1.00"></rect><text x="243.90227692307693" y="105.44522729211974" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">134</text>
+      <text x="236" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Jul</text><rect x="257.0584615384616" y="106.46524611708968" width="13.463138461538461" height="5.534753882910326" rx="1.5" fill="var(--pac)" opacity="0.30"></rect><text x="263.79003076923084" y="104.46524611708968" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">163</text>
+      <text x="271.69230769230774" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Aoû</text><rect x="292.75076923076927" y="99.59313376830761" width="13.463138461538461" height="12.406866231692383" rx="1.5" fill="var(--pac)" opacity="0.30"></rect><text x="299.4823384615385" y="97.59313376830761" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">366</text>
+      <text x="307.3846153846154" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Sep</text><rect x="328.44307692307694" y="84.74183709074782" width="13.463138461538461" height="27.258162909252178" rx="1.5" fill="var(--pac)" opacity="0.30"></rect><text x="335.1746461538462" y="82.74183709074782" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">803</text>
+      <text x="343.0769230769231" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Oct</text><rect x="364.1353846153846" y="61.357577687585206" width="13.463138461538461" height="50.642422312414794" rx="1.5" fill="var(--pac)" opacity="0.30"></rect><text x="370.8669538461539" y="59.357577687585206" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">1492</text>
+      <text x="378.7692307692308" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Nov</text><rect x="399.82769230769236" y="42.607409600730335" width="13.463138461538461" height="69.39259039926966" rx="1.5" fill="var(--pac)" opacity="0.30"></rect><text x="406.5592615384616" y="40.607409600730335" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">2045</text>
+      <text x="414.4615384615385" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">Déc</text>
+    <line x1="436.3076923076923" y1="6" x2="436.3076923076923" y2="116" stroke="var(--line)" stroke-width="1"></line>
+    <rect x="443.52000000000004" y="10" width="13.463138461538461" height="102" rx="1.5" fill="var(--pac)" opacity="0.30"></rect><text x="450.2515692307693" y="8" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">9371</text><rect x="459.3245538461539" y="40.477003521502525" width="13.463138461538461" height="71.52299647849748" rx="1.5" fill="var(--pac)" opacity="1.00"></rect><text x="466.05612307692314" y="38.477003521502525" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">6571</text>
+    <text x="458.1538461538462" y="123" font-size="7.5" fill="var(--text-dim)" text-anchor="middle" font-weight="650">Total</text></svg>
+    <div style="display:flex;gap:14px;font-size:10.5px;color:var(--text-dim);margin-top:2px;flex-wrap:wrap;"><span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--pac);opacity:0.30;margin-right:4px;vertical-align:middle;"></span>2025</span><span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--pac);opacity:1.00;margin-right:4px;vertical-align:middle;"></span>2026</span></div></div>
+    </details></div>
+    </details>
+  </div>
+
+  <div class="card" id="status-card" style="display: block;">
+    <details open="" class="section-details" data-key="conso">
+      <summary class="card-summary">État actuel — consommation mensuelle</summary>
+      <div id="status">
+    <details open="" class="group-details">
+      <summary class="group-title">Eau</summary>
+      
+        <div class="status-row">
+          <span class="name"><span class="dot" style="background:var(--eau)"></span>Global</span>
+          <span class="vals">
+            <div class="monthly">63.5 m³/mois</div>
+            <div class="raw">+98.00 m³ en 47 j · dernier : 2708 le 19.07.2026</div>
+          </span>
+        </div>
+        <div class="status-row">
+          <span class="name"><span class="dot" style="background:var(--eau)"></span>Arrosage</span>
+          <span class="vals">
+            <div class="monthly">51.2 m³/mois</div>
+            <div class="raw">+79.00 m³ en 47 j · dernier : 255 le 19.07.2026</div>
+          </span>
+        </div>
+        <div class="status-row">
+          <span class="name"><span class="dot" style="background:var(--eau)"></span>Local</span>
+          <span class="vals">
+            <div class="monthly">0.0 m³/mois</div>
+            <div class="raw">+0.04 m³ en 47 j · dernier : 1.76 le 19.07.2026</div>
+          </span>
+        </div>
+        <div class="status-row">
+          <span class="name"><span class="dot" style="background:var(--eau)"></span>Piscine</span>
+          <span class="vals">
+            <div class="monthly">5.3 m³/mois</div>
+            <div class="raw">+8.14 m³ en 47 j · dernier : 11.28 le 19.07.2026</div>
+          </span>
+        </div>
+    </details>
+    <details open="" class="group-details">
+      <summary class="group-title">Élec</summary>
+      
+        <div class="status-row">
+          <span class="name"><span class="dot" style="background:var(--elec)"></span>Voiture</span>
+          <span class="vals">
+            <div class="monthly">156.7 kWh/mois</div>
+            <div class="raw">+242.00 kWh en 47 j · dernier : 3934 le 19.07.2026</div>
+          </span>
+        </div>
+        <div class="status-row">
+          <span class="name"><span class="dot" style="background:var(--elec)"></span>Piscine</span>
+          <span class="vals">
+            <div class="monthly">447.5 kWh/mois</div>
+            <div class="raw">+691.00 kWh en 47 j · dernier : 5618 le 19.07.2026</div>
+          </span>
+        </div>
+        <div class="status-row">
+          <span class="name"><span class="dot" style="background:var(--elec)"></span>PAC</span>
+          <span class="vals">
+            <div class="monthly">83.5 kWh/mois</div>
+            <div class="raw">+129.00 kWh en 47 j · dernier : 6156 le 19.07.2026</div>
+          </span>
+        </div>
+    </details>
+    <details open="" class="group-details">
+      <summary class="group-title">PAC</summary>
+      
+        <div class="status-row">
+          <span class="name"><span class="dot" style="background:var(--pac)"></span>Chaleur</span>
+          <span class="vals">
+            <div class="monthly">215.0 kWh th./mois</div>
+            <div class="raw">+332.00 kWh th. en 47 j · dernier : 16743 le 19.07.2026</div>
+          </span>
+        </div>
+    </details></div>
+    </details>
+  </div>
+
+  <details class="card section-details" data-key="import" id="import-card" open="">
+    <summary class="card-summary">Historique en annexe</summary>
+    <div id="import-status" style="font-size:13px;color:var(--text-dim);margin-bottom:10px;">
+      43 relevés (31.01.2025 → 19.07.2026) issus de Consommations_Onex.xlsx, prêts à importer.
+    </div>
+    <button class="primary" id="btn-import" style="background:var(--pac)">Importer l'historique</button>
+  </details>
+
+  <details class="card section-details" data-key="historique" open="">
+    <summary class="card-summary">Historique</summary>
+    <div id="timeline" style="margin-bottom:14px;"><svg viewBox="0 0 480 46" width="100%" height="46"><line x1="299.5955056179775" y1="8" x2="299.5955056179775" y2="36" stroke="var(--line)" stroke-width="1" stroke-dasharray="2,2"></line>
+            <text x="299.5955056179775" y="44" font-size="7" fill="var(--text-dim)" text-anchor="middle">2026</text><line x1="6" y1="20" x2="474" y2="20" stroke="var(--line)" stroke-width="1"></line><circle cx="6" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="9.50561797752809" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="10.382022471910112" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="10.382022471910112" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="11.258426966292134" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="11.258426966292134" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="12.134831460674157" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="12.134831460674157" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="13.01123595505618" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="14.764044943820226" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="15.640449438202246" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="16.51685393258427" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="19.146067415730336" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="20.02247191011236" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="20.89887640449438" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="21.775280898876403" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="24.40449438202247" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="32.29213483146067" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="34.921348314606746" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="36.674157303370784" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="41.0561797752809" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="44.561797752808985" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="45.43820224719101" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="46.31460674157304" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="50.69662921348314" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="60.337078651685395" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="70.85393258426967" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="135.70786516853934" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="162.87640449438203" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="190.92134831460675" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="215.46067415730337" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="228.6067415730337" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="243.5056179775281" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="255.7752808988764" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="268.92134831460675" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="279.438202247191" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="302.2247191011236" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="309.23595505617976" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="325.8876404494382" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="401.2584269662921" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="415.28089887640454" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="432.80898876404495" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><circle cx="474" cy="20" r="2.6" fill="var(--eau)" opacity="0.9"></circle><text x="6" y="14" font-size="7.5" fill="var(--text-dim)" text-anchor="start">31.01.2025</text><text x="474" y="14" font-size="7.5" fill="var(--text-dim)" text-anchor="end">19.07.2026</text></svg>
+    <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">43 relevé(s) au total</div></div>
+    <div id="history">
+      <div class="entry">
+        <div class="top">
+          <span class="date">19.07.2026</span>
+          <button class="del" onclick="deleteEntry(1787862681297)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--eau)"></span>Global 2708</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Arrosage 255</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Local 1.76</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Piscine 11.28</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Voiture 3934</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Piscine 5618</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 6156</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 16743</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">02.06.2026</span>
+          <button class="del" onclick="deleteEntry(1787862681296)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--eau)"></span>Global 2610</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Arrosage 176</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Local 1.72</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Piscine 3.14</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Voiture 3692</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Piscine 4927</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 6027</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 16411</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">13.05.2026</span>
+          <button class="del" onclick="deleteEntry(1787862681295)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--eau)"></span>Global 2575</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Arrosage 147.9</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Local 1.72</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Piscine 2.29</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Voiture 3517</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Piscine 4717</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 5959</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 16212</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">27.04.2026</span>
+          <button class="del" onclick="deleteEntry(1787862681294)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--eau)"></span>Global 2551</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Arrosage 131.74</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Local 1.7</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Piscine 1.25</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Voiture 3367</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Piscine 4396</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 5881</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 15965</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">31.01.2026</span>
+          <button class="del" onclick="deleteEntry(1787862681293)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--eau)"></span>Global 2512</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Arrosage 124.5</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Local 0</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Piscine 1.25</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Voiture 2487</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Piscine 3911</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 4902</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 12642</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">12.01.2026</span>
+          <button class="del" onclick="deleteEntry(1787862681292)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--eau)"></span>Global 2508</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Arrosage 124.5</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Local 0</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Piscine 1.25</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Voiture 2371</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Piscine 3855</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 4452</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 11241</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">04.01.2026</span>
+          <button class="del" onclick="deleteEntry(1787862681291)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--eau)"></span>Global 2505</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Arrosage 124.5</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Local 0</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Piscine 1.25</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Voiture 2239</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Piscine 3732</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 4140</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 10428</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">09.12.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681290)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--eau)"></span>Arrosage 124.5</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Local 0</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Piscine 1.25</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 3574</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 8764</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">27.11.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681289)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--eau)"></span>Arrosage 124.5</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Local 0</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Piscine 1.25</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 3296</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 7915</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">12.11.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681288)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--eau)"></span>Arrosage 124.5</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Local 0</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Piscine 1.25</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 3066</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 7235</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">29.10.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681287)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--eau)"></span>Global 2484</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Arrosage 124.5</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Local 0</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Piscine 1.25</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Voiture 1736</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Piscine 3382</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 2856</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 6535</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">12.10.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681286)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--eau)"></span>Global 2480</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Arrosage 124</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Local 0</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Piscine 1.25</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Voiture 1581</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Piscine 3276</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 2731</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 6083</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">27.09.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681285)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--eau)"></span>Global 2477</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Arrosage 124</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Local 0</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Piscine 1.25</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Voiture 1527</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Piscine 3076</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 2648</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 5769</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">30.08.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681284)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--eau)"></span>Global 2458</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Arrosage 115</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Local 0</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Piscine 1.1</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Voiture 1310</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Piscine 2489</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 2539</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 5455</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">29.07.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681283)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--eau)"></span>Global 2385</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Arrosage 61.7</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Local 0</span><span class="chip"><span class="dot" style="background:var(--eau)"></span>Piscine 0.7</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Voiture 1054.6</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Piscine 1862</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 2468</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 5293</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">28.06.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681282)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--eau)"></span>Global 2262</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Voiture 700</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>Piscine 1266</span><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 2401</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 5141</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">15.04.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681281)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 2140</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 4423</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">03.04.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681280)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 2083</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 4242</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">23.03.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681279)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 1974</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 3819</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">18.03.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681278)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 1900</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 3559</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">17.03.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681277)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 1875</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 3475</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">16.03.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681276)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 1836</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 3349</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">12.03.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681275)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 1746</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 3074</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">07.03.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681274)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 1627</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 2937</span></div>
+        <div class="raw" style="margin-top:5px;color:var(--text-dim)">📝 panne PAC, fonctionnement sur elec</div>
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">05.03.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681273)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 1577</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 2813</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">02.03.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681272)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 1432</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 2452</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">21.02.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681271)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 1242</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 1853</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">18.02.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681270)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 1100</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 1516</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">17.02.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681269)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 1049</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 1401</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">16.02.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681268)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 988</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 1273</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">15.02.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681267)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 924</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 1130</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">12.02.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681266)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 798</span><span class="chip"><span class="dot" style="background:var(--pac)"></span>Chaleur 801</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">11.02.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681265)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 744</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">10.02.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681264)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 706</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">08.02.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681263)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 571</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">07.02.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681262)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 538</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">07.02.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681261)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 504</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">06.02.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681260)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 460</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">06.02.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681259)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 440</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">05.02.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681258)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 388</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">05.02.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681257)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 363</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">04.02.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681256)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 301</span></div>
+        
+      </div>
+      <div class="entry">
+        <div class="top">
+          <span class="date">31.01.2025</span>
+          <button class="del" onclick="deleteEntry(1787862681255)">✕</button>
+        </div>
+        <div class="chips"><span class="chip"><span class="dot" style="background:var(--elec)"></span>PAC 0</span></div>
+        
+      </div></div>
+  </details>
+
+</main>
+
+<footer>Données stockées uniquement sur cet appareil (localStorage). Aucune synchronisation externe. Consommation mensuelle = écart entre deux relevés ramené à 30,44 jours.</footer>
+
+<script>
+const STORE_KEY = "releves_compteurs_v2";
+const DAYS_MONTH = 30.44;
+
+const METERS = [
+  { id:'eauGlobal',   label:'Global',   group:'eau',  color:'var(--eau)',  unit:'m³' },
+  { id:'eauSous1',     label:'Arrosage', group:'eau',  color:'var(--eau)',  unit:'m³' },
+  { id:'eauSous2',     label:'Local',    group:'eau',  color:'var(--eau)',  unit:'m³' },
+  { id:'eauSous3',     label:'Piscine',  group:'eau',  color:'var(--eau)',  unit:'m³' },
+  { id:'elecVoiture',  label:'Voiture',  group:'elec', color:'var(--elec)', unit:'kWh' },
+  { id:'elecPiscine',  label:'Piscine',  group:'elec', color:'var(--elec)', unit:'kWh' },
+  { id:'elecPac',      label:'PAC',      group:'elec', color:'var(--elec)', unit:'kWh' },
+  { id:'pacChaleur',   label:'Chaleur',  group:'pac',  color:'var(--pac)',  unit:'kWh th.' }
+];
+const GROUP_LABEL = { eau:'Eau', elec:'Élec', pac:'PAC' };
+
+function loadEntries(){
+  try{ return JSON.parse(localStorage.getItem(STORE_KEY) || "[]"); }
+  catch(e){ return []; }
+}
+function saveEntries(list){ localStorage.setItem(STORE_KEY, JSON.stringify(list)); }
+let entries = loadEntries();
+
+// ---- migrate v1 data if present (best effort, non destructive) ----
+(function migrateV1(){
+  if(entries.length) return;
+  try{
+    const old = JSON.parse(localStorage.getItem("releves_compteurs_v1") || "null");
+    if(old && old.length){
+      entries = old.map(e => ({
+        id: e.id, date: e.date,
+        eauGlobal: e.eau ?? null, eauSous1:null, eauSous2:null, eauSous3:null,
+        elecGlobal: e.elec ?? null, elecVoiture:null, elecPiscine:null, elecPac:null,
+        pacChaleur:null
+      }));
+      saveEntries(entries);
+    }
+  }catch(err){}
+})();
+
+// ---- build entry form grids: one number input + one photo button per meter ----
+function buildGrid(groupId, containerId){
+  const el = document.getElementById(containerId);
+  el.innerHTML = METERS.filter(m => m.group === groupId).map(m => `
+    <div class="field">
+      <label for="f-${m.id}">${m.label}</label>
+      <div class="input-photo">
+        <input type="number" id="f-${m.id}" inputmode="decimal" step="0.01" placeholder="index">
+        <button type="button" class="cam-btn" id="cam-${m.id}" title="Photo ${m.label}">📷</button>
+      </div>
+      <input type="file" accept="image/*" capture="environment" id="file-${m.id}" style="display:none">
+      <div class="ocr-status" id="ocr-status-${m.id}"></div>
+    </div>`).join('');
+}
+buildGrid('eau','grid-eau');
+buildGrid('elec','grid-elec');
+buildGrid('pac','grid-pac');
+
+document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+
+// ---- OCR (test) : lecture automatique de l'index à partir de la photo, via Tesseract.js chargé à la demande ----
+// La bibliothèque n'est récupérée qu'au premier usage (pas de coût au chargement de la page).
+let ocrWorkerPromise = null;
+
+function loadTesseractScript(){
+  return new Promise((resolve, reject) => {
+    if(window.Tesseract){ resolve(); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error('Échec du chargement de la bibliothèque OCR'));
+    document.head.appendChild(s);
+  });
+}
+
+async function getOcrWorker(){
+  if(!ocrWorkerPromise){
+    ocrWorkerPromise = (async () => {
+      await loadTesseractScript();
+      const worker = await Tesseract.createWorker('eng');
+      await worker.setParameters({ tessedit_char_whitelist: '0123456789.' });
+      return worker;
+    })();
+  }
+  return ocrWorkerPromise;
+}
+
+async function runOcr(dataUrl, meterId){
+  const statusEl = document.getElementById('ocr-status-'+meterId);
+  const input = document.getElementById('f-'+meterId);
+  if(statusEl) statusEl.textContent = 'Chargement OCR…';
+  try{
+    const worker = await getOcrWorker();
+    if(statusEl) statusEl.textContent = 'Lecture en cours…';
+    const { data } = await worker.recognize(dataUrl);
+    const raw = (data.text || '').trim();
+    const match = raw.match(/\d+(\.\d+)?/);
+    if(!match){
+      if(statusEl) statusEl.textContent = '⚠️ OCR : chiffres non détectés — saisir manuellement';
+      return;
+    }
+    const val = match[0];
+    // reprendre une photo signifie vouloir une nouvelle lecture : on remplace la valeur, toujours modifiable ensuite
+    input.value = val;
+    input.dataset.ocrGuess = '1';
+    if(statusEl) statusEl.innerHTML = `⚠️ OCR : ${val} — non vérifié, à contrôler puis corriger si besoin`;
+  }catch(err){
+    if(statusEl) statusEl.textContent = 'OCR indisponible (connexion requise au premier essai)';
+  }
+}
+
+// ---- photo capture with compression, one per meter ----
+function wireMeterPhoto(meterId){
+  const btn = document.getElementById('cam-'+meterId);
+  const input = document.getElementById('file-'+meterId);
+  const numberInput = document.getElementById('f-'+meterId);
+  numberInput.addEventListener('input', () => {
+    delete numberInput.dataset.ocrGuess;
+    const statusEl = document.getElementById('ocr-status-'+meterId);
+    if(statusEl && statusEl.textContent.startsWith('⚠️')) statusEl.textContent = '';
+  });
+  btn.addEventListener('click', () => input.click());
+  input.addEventListener('change', () => {
+    const file = input.files[0];
+    if(!file) return;
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = e => { img.src = e.target.result; };
+    img.onload = () => {
+      const maxW = 480;
+      const scale = Math.min(1, maxW / img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+      btn.dataset.photo = dataUrl;
+      btn.classList.add('has-photo');
+      btn.style.backgroundImage = `url(${dataUrl})`;
+      btn.textContent = '';
+      runOcr(dataUrl, meterId);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+METERS.forEach(m => wireMeterPhoto(m.id));
+
+// ---- save entry ----
+document.getElementById('btn-save').addEventListener('click', () => {
+  const date = document.getElementById('f-date').value;
+  if(!date){ alert("Indiquez une date."); return; }
+  const entry = { id: Date.now(), date };
+  METERS.forEach(m => {
+    const raw = document.getElementById('f-'+m.id).value;
+    entry[m.id] = raw === "" ? null : parseFloat(raw);
+  });
+  METERS.forEach(m => {
+    entry['photo_'+m.id] = document.getElementById('cam-'+m.id).dataset.photo || null;
+  });
+  const noteVal = document.getElementById('f-note').value.trim();
+  entry.note = noteVal === "" ? null : noteVal;
+
+  entries.push(entry);
+  saveEntries(entries);
+
+  METERS.forEach(m => {
+    const numInput = document.getElementById('f-'+m.id);
+    numInput.value = "";
+    delete numInput.dataset.ocrGuess;
+    const btn = document.getElementById('cam-'+m.id);
+    delete btn.dataset.photo;
+    btn.classList.remove('has-photo');
+    btn.style.backgroundImage = '';
+    btn.textContent = '📷';
+    const statusEl = document.getElementById('ocr-status-'+m.id);
+    if(statusEl) statusEl.textContent = '';
+  });
+  document.getElementById('f-note').value = "";
+
+  render();
+});
+
+// ---- historical import (annexe Consommations_Onex.xlsx) ----
+const HISTORIQUE_ANNEXE = [{"date": "2025-01-31", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 0, "pacChaleur": null, "note": null}, {"date": "2025-02-04", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 301, "pacChaleur": null, "note": null}, {"date": "2025-02-05", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 363, "pacChaleur": null, "note": null}, {"date": "2025-02-05", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 388, "pacChaleur": null, "note": null}, {"date": "2025-02-06", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 440, "pacChaleur": null, "note": null}, {"date": "2025-02-06", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 460, "pacChaleur": null, "note": null}, {"date": "2025-02-07", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 504, "pacChaleur": null, "note": null}, {"date": "2025-02-07", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 538, "pacChaleur": null, "note": null}, {"date": "2025-02-08", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 571, "pacChaleur": null, "note": null}, {"date": "2025-02-10", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 706, "pacChaleur": null, "note": null}, {"date": "2025-02-11", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 744, "pacChaleur": null, "note": null}, {"date": "2025-02-12", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 798, "pacChaleur": 801, "note": null}, {"date": "2025-02-15", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 924, "pacChaleur": 1130, "note": null}, {"date": "2025-02-16", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 988, "pacChaleur": 1273, "note": null}, {"date": "2025-02-17", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 1049, "pacChaleur": 1401, "note": null}, {"date": "2025-02-18", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 1100, "pacChaleur": 1516, "note": null}, {"date": "2025-02-21", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 1242, "pacChaleur": 1853, "note": null}, {"date": "2025-03-02", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 1432, "pacChaleur": 2452, "note": null}, {"date": "2025-03-05", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 1577, "pacChaleur": 2813, "note": null}, {"date": "2025-03-07", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 1627, "pacChaleur": 2937, "note": "panne PAC, fonctionnement sur elec"}, {"date": "2025-03-12", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 1746, "pacChaleur": 3074, "note": null}, {"date": "2025-03-16", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 1836, "pacChaleur": 3349, "note": null}, {"date": "2025-03-17", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 1875, "pacChaleur": 3475, "note": null}, {"date": "2025-03-18", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 1900, "pacChaleur": 3559, "note": null}, {"date": "2025-03-23", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 1974, "pacChaleur": 3819, "note": null}, {"date": "2025-04-03", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 2083, "pacChaleur": 4242, "note": null}, {"date": "2025-04-15", "eauGlobal": null, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 2140, "pacChaleur": 4423, "note": null}, {"date": "2025-06-28", "eauGlobal": 2262, "eauSous1": null, "eauSous2": null, "eauSous3": null, "elecGlobal": null, "elecVoiture": 700, "elecPiscine": 1266, "elecPac": 2401, "pacChaleur": 5141, "note": null}, {"date": "2025-07-29", "eauGlobal": 2385, "eauSous1": 61.7, "eauSous2": 0, "eauSous3": 0.7, "elecGlobal": null, "elecVoiture": 1054.6, "elecPiscine": 1862, "elecPac": 2468, "pacChaleur": 5293, "note": null}, {"date": "2025-08-30", "eauGlobal": 2458, "eauSous1": 115, "eauSous2": 0, "eauSous3": 1.1, "elecGlobal": null, "elecVoiture": 1310, "elecPiscine": 2489, "elecPac": 2539, "pacChaleur": 5455, "note": null}, {"date": "2025-09-27", "eauGlobal": 2477, "eauSous1": 124, "eauSous2": 0, "eauSous3": 1.25, "elecGlobal": null, "elecVoiture": 1527, "elecPiscine": 3076, "elecPac": 2648, "pacChaleur": 5769, "note": null}, {"date": "2025-10-12", "eauGlobal": 2480, "eauSous1": 124, "eauSous2": 0, "eauSous3": 1.25, "elecGlobal": null, "elecVoiture": 1581, "elecPiscine": 3276, "elecPac": 2731, "pacChaleur": 6083, "note": null}, {"date": "2025-10-29", "eauGlobal": 2484, "eauSous1": 124.5, "eauSous2": 0, "eauSous3": 1.25, "elecGlobal": null, "elecVoiture": 1736, "elecPiscine": 3382, "elecPac": 2856, "pacChaleur": 6535, "note": null}, {"date": "2025-11-12", "eauGlobal": null, "eauSous1": 124.5, "eauSous2": 0, "eauSous3": 1.25, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 3066, "pacChaleur": 7235, "note": null}, {"date": "2025-11-27", "eauGlobal": null, "eauSous1": 124.5, "eauSous2": 0, "eauSous3": 1.25, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 3296, "pacChaleur": 7915, "note": null}, {"date": "2025-12-09", "eauGlobal": null, "eauSous1": 124.5, "eauSous2": 0, "eauSous3": 1.25, "elecGlobal": null, "elecVoiture": null, "elecPiscine": null, "elecPac": 3574, "pacChaleur": 8764, "note": null}, {"date": "2026-01-04", "eauGlobal": 2505, "eauSous1": 124.5, "eauSous2": 0, "eauSous3": 1.25, "elecGlobal": null, "elecVoiture": 2239, "elecPiscine": 3732, "elecPac": 4140, "pacChaleur": 10428, "note": null}, {"date": "2026-01-12", "eauGlobal": 2508, "eauSous1": 124.5, "eauSous2": 0, "eauSous3": 1.25, "elecGlobal": null, "elecVoiture": 2371, "elecPiscine": 3855, "elecPac": 4452, "pacChaleur": 11241, "note": null}, {"date": "2026-01-31", "eauGlobal": 2512, "eauSous1": 124.5, "eauSous2": 0, "eauSous3": 1.25, "elecGlobal": null, "elecVoiture": 2487, "elecPiscine": 3911, "elecPac": 4902, "pacChaleur": 12642, "note": null}, {"date": "2026-04-27", "eauGlobal": 2551, "eauSous1": 131.74, "eauSous2": 1.7, "eauSous3": 1.25, "elecGlobal": null, "elecVoiture": 3367, "elecPiscine": 4396, "elecPac": 5881, "pacChaleur": 15965, "note": null}, {"date": "2026-05-13", "eauGlobal": 2575, "eauSous1": 147.9, "eauSous2": 1.72, "eauSous3": 2.29, "elecGlobal": null, "elecVoiture": 3517, "elecPiscine": 4717, "elecPac": 5959, "pacChaleur": 16212, "note": null}, {"date": "2026-06-02", "eauGlobal": 2610, "eauSous1": 176, "eauSous2": 1.72, "eauSous3": 3.14, "elecGlobal": null, "elecVoiture": 3692, "elecPiscine": 4927, "elecPac": 6027, "pacChaleur": 16411, "note": null}, {"date": "2026-07-19", "eauGlobal": 2708, "eauSous1": 255, "eauSous2": 1.76, "eauSous3": 11.28, "elecGlobal": null, "elecVoiture": 3934, "elecPiscine": 5618, "elecPac": 6156, "pacChaleur": 16743, "note": null}];
+
+document.getElementById('btn-import').addEventListener('click', () => {
+  let added = 0, skipped = 0;
+  HISTORIQUE_ANNEXE.forEach((h, i) => {
+    const dup = entries.some(e => e.date === h.date &&
+      METERS.every(m => (e[m.id] ?? null) === (h[m.id] ?? null)));
+    if(dup){ skipped++; return; }
+    entries.push({
+      id: Date.now() + i,
+      date: h.date,
+      eauGlobal: h.eauGlobal, eauSous1: h.eauSous1, eauSous2: h.eauSous2, eauSous3: h.eauSous3,
+      elecGlobal: h.elecGlobal, elecVoiture: h.elecVoiture, elecPiscine: h.elecPiscine, elecPac: h.elecPac,
+      pacChaleur: h.pacChaleur,
+      note: h.note || null
+    });
+    added++;
+  });
+  saveEntries(entries);
+  document.getElementById('import-status').textContent =
+    `${added} relevé(s) importé(s)` + (skipped ? `, ${skipped} déjà présent(s) ignoré(s).` : '.');
+  render();
+});
+
+function deleteEntry(id){
+  if(!confirm("Supprimer ce relevé ?")) return;
+  entries = entries.filter(e => e.id !== id);
+  saveEntries(entries);
+  render();
+}
+
+function fmtDate(iso){
+  const [y,m,d] = iso.split('-');
+  return `${d}.${m}.${y}`;
+}
+function sorted(){ return [...entries].sort((a,b) => a.date.localeCompare(b.date)); }
+
+// ---- reminder banner ----
+function renderBanner(){
+  const el = document.getElementById('banner');
+  const list = sorted();
+  if(list.length === 0){
+    el.innerHTML = `<div class="banner">Aucun relevé enregistré. Saisissez le premier relevé ci-dessous.</div>`;
+    return;
+  }
+  const last = list[list.length - 1];
+  const days = Math.floor((new Date() - new Date(last.date)) / 86400000);
+  el.innerHTML = days >= 25
+    ? `<div class="banner">⏱ Dernier relevé le <strong>${fmtDate(last.date)}</strong> (${days} j). Relevé du mois à effectuer.</div>`
+    : "";
+}
+
+// ---- for each meter: build chronological series of {date, value} then periods with monthly-normalized consumption ----
+function meterSeries(id){
+  return sorted().filter(e => e[id] != null).map(e => ({ date: e.date, value: e[id] }));
+}
+function meterPeriods(id){
+  const s = meterSeries(id);
+  const out = [];
+  for(let i = 1; i < s.length; i++){
+    const days = (new Date(s[i].date) - new Date(s[i-1].date)) / 86400000;
+    const delta = s[i].value - s[i-1].value;
+    const monthly = days > 0 ? (delta / days) * DAYS_MONTH : null;
+    out.push({ date: s[i].date, days: Math.round(days), delta, monthly });
+  }
+  return out;
+}
+
+// ---- calendar-month allocation: spread each reading period's consumption across the calendar months it spans (pro-rata by day count) ----
+function monthKey(d){ return d.getUTCFullYear() + '-' + String(d.getUTCMonth()+1).padStart(2,'0'); }
+
+function monthlyAllocation(meterId){
+  const s = meterSeries(meterId);
+  const totals = {};
+  for(let i = 1; i < s.length; i++){
+    const d0 = new Date(s[i-1].date+'T00:00:00Z');
+    const d1 = new Date(s[i].date+'T00:00:00Z');
+    const delta = s[i].value - s[i-1].value;
+    const totalDays = Math.round((d1 - d0) / 86400000);
+    if(totalDays <= 0) continue;
+    const perDay = delta / totalDays;
+    const cursor = new Date(d0);
+    for(let k = 0; k < totalDays; k++){
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
+      const key = monthKey(cursor);
+      totals[key] = (totals[key] || 0) + perDay;
+    }
+  }
+  return totals;
+}
+
+// average of the same calendar month across strictly previous years (no fabrication if none exist)
+function monthAverage(totals, key){
+  const [y, m] = key.split('-').map(Number);
+  const same = Object.keys(totals).filter(k => {
+    const [ky, km] = k.split('-').map(Number);
+    return km === m && ky < y;
+  });
+  if(same.length === 0) return null;
+  return same.reduce((s,k) => s + totals[k], 0) / same.length;
+}
+
+function monthLabel(key){
+  const [y,m] = key.split('-');
+  return `${m}.${y.slice(2)}`;
+}
+
+const MONTH_ABBR = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+
+// 12 fixed months (Jan→Déc): for each month, the value of every year present (oldest first) — stacked, not averaged
+function monthlyStack(totals){
+  const years = Array.from(new Set(Object.keys(totals).map(k => parseInt(k.split('-')[0],10)))).sort((a,b)=>a-b);
+  const rows = [];
+  for(let m = 1; m <= 12; m++){
+    const mm = String(m).padStart(2,'0');
+    const segments = years
+      .map(y => ({ year:y, value: totals[`${y}-${mm}`] ?? null }))
+      .filter(s => s.value != null);
+    rows.push({ month:m, segments });
+  }
+  return { years, rows };
+}
+
+// annual cumulative total per year (sum of the calendar months allocated to that year)
+function annualStack(totals, years){
+  return years.map(y => ({
+    year: y,
+    value: Object.keys(totals)
+      .filter(k => k.startsWith(y+'-'))
+      .reduce((s,k) => s + totals[k], 0)
+  }));
+}
+
+// ---- status card: latest value + last monthly consumption per meter, grouped & collapsible per category ----
+function renderStatus(){
+  const card = document.getElementById('status-card');
+  const el = document.getElementById('status');
+  const groups = ['eau','elec','pac'].map(g => {
+    const rows = METERS.filter(m => m.group === g).map(m => {
+      const s = meterSeries(m.id);
+      if(s.length === 0) return null;
+      const last = s[s.length - 1];
+      const periods = meterPeriods(m.id);
+      const lastPeriod = periods[periods.length - 1];
+      const monthlyTxt = lastPeriod && lastPeriod.monthly != null
+        ? `${lastPeriod.monthly.toFixed(1)} ${m.unit}/mois`
+        : '—';
+      const rawTxt = lastPeriod
+        ? `+${lastPeriod.delta.toFixed(2)} ${m.unit} en ${lastPeriod.days} j`
+        : `1 seul relevé`;
+      return `
+        <div class="status-row">
+          <span class="name"><span class="dot" style="background:${m.color}"></span>${m.label}</span>
+          <span class="vals">
+            <div class="monthly">${monthlyTxt}</div>
+            <div class="raw">${rawTxt} · dernier : ${last.value} le ${fmtDate(last.date)}</div>
+          </span>
+        </div>`;
+    }).filter(Boolean);
+    return { g, rows };
+  }).filter(gr => gr.rows.length > 0);
+
+  if(groups.length === 0){ card.style.display = 'none'; return; }
+  card.style.display = 'block';
+  el.innerHTML = groups.map(gr => `
+    <details open class="group-details">
+      <summary class="group-title">${GROUP_LABEL[gr.g]}</summary>
+      ${gr.rows.join('')}
+    </details>`).join('');
+}
+
+// ---- fixed Jan→Déc axis + 1 annual-total column, stacked bars: one module per year, value + year printed above each module ----
+function renderChart(container, totals, color){
+  if(Object.keys(totals).length === 0){ container.innerHTML = `<div class="empty" style="padding:8px 0">Pas assez de relevés</div>`; return; }
+  const { years, rows } = monthlyStack(totals);
+  const annual = annualStack(totals, years);
+
+  const w = 480, h = 128, pad = 4;
+  const topM = 10, bottomM = 16;
+  const usableH = h - topM - bottomM;
+  const baseline = topM + usableH;
+  const opacityFor = (idx) => years.length <= 1 ? 1 : 0.3 + 0.7 * (idx / (years.length - 1));
+
+  const divider = 8; // extra gap before the "Total" column
+  const nCols = 13; // 12 mois + 1 colonne total
+  const groupW = (w - pad*2 - divider) / nCols;
+  const clusterWpx = groupW * 0.82; // width available for the side-by-side bars within a column
+
+  const monthlyMax = Math.max(...rows.map(r => r.segments.reduce((s,seg)=>s+seg.value,0)), 0.0001);
+  const annualMax = Math.max(...annual.map(a=>a.value), 0.0001);
+
+  // alternating background bands + baseline, to clearly delimit each month's footprint
+  const bands = rows.map((r,i) => {
+    const gx = pad + i * groupW;
+    const fill = i % 2 === 0 ? 'var(--bg)' : 'rgba(255,255,255,0.025)';
+    return `<rect x="${gx}" y="${topM-4}" width="${groupW}" height="${usableH+8}" fill="${fill}"></rect>`;
+  }).join('');
+  const totalBandGx = pad + 12*groupW + divider;
+  const totalBand = `<rect x="${totalBandGx}" y="${topM-4}" width="${groupW}" height="${usableH+8}" fill="rgba(255,255,255,0.04)"></rect>`;
+  const baselineLine = `<line x1="${pad}" y1="${baseline}" x2="${totalBandGx+groupW}" y2="${baseline}" stroke="var(--line)" stroke-width="1"></line>`;
+
+  // side-by-side (grouped) bars: one bar per year, drawn next to each other rather than stacked
+  function drawGrouped(segments, clusterX, maxScale){
+    const n = Math.max(1, years.length); // fixed width based on the total number of years, not just those present this month
+    const gap = clusterWpx * 0.08;
+    const barW = (clusterWpx - gap * (n - 1)) / n;
+    return segments.map(seg => {
+      const idx = years.indexOf(seg.year);
+      const x = clusterX + idx * (barW + gap);
+      const bh = Math.max(1, (seg.value / maxScale) * usableH);
+      const y = baseline - bh;
+      const rect = `<rect x="${x}" y="${y}" width="${barW}" height="${bh}" rx="1.5" fill="${color}" opacity="${opacityFor(idx).toFixed(2)}"></rect>`;
+      const ly = y-2 < 8 ? 8 : y-2;
+      const label = `<text x="${x+barW/2}" y="${ly}" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">${Math.round(seg.value)}</text>`;
+      return rect + label;
+    }).join('');
+  }
+
+  const monthParts = rows.map((r,i) => {
+    const gx = pad + i * groupW;
+    const clusterX = gx + (groupW - clusterWpx) / 2;
+    return `${drawGrouped(r.segments, clusterX, monthlyMax)}
+      <text x="${gx+groupW*0.5}" y="${baseline+11}" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">${MONTH_ABBR[r.month-1]}</text>`;
+  }).join('');
+
+  const totalGx = pad + 12*groupW + divider;
+  const totalClusterX = totalGx + (groupW - clusterWpx) / 2;
+  const dividerX = pad + 12*groupW + divider/2;
+  const totalPart = `
+    <line x1="${dividerX}" y1="${topM-4}" x2="${dividerX}" y2="${baseline+4}" stroke="var(--line)" stroke-width="1"></line>
+    ${drawGrouped(annual, totalClusterX, annualMax)}
+    <text x="${totalGx+groupW*0.5}" y="${baseline+11}" font-size="7.5" fill="var(--text-dim)" text-anchor="middle" font-weight="650">Total</text>`;
+
+  const legend = years.map((y,idx) =>
+    `<span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${color};opacity:${opacityFor(idx).toFixed(2)};margin-right:4px;vertical-align:middle;"></span>${y}</span>`
+  ).join('');
+
+  container.innerHTML = `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}">${bands}${totalBand}${baselineLine}${monthParts}${totalPart}</svg>
+    <div style="display:flex;gap:14px;font-size:10.5px;color:var(--text-dim);margin-top:2px;flex-wrap:wrap;">${legend}</div>`;
+}
+
+
+function renderCharts(){
+  const card = document.getElementById('chart-card');
+  const el = document.getElementById('charts');
+  const blocks = METERS.map(m => {
+    const totals = monthlyAllocation(m.id);
+    if(Object.keys(totals).length === 0) return null;
+    const id = 'chart-'+m.id;
+    return `<details open class="chart-block-details">
+      <summary><span><span class="dot" style="background:${m.color}"></span>${GROUP_LABEL[m.group]} · ${m.label} (${m.unit}/mois)</span></summary>
+      <div id="${id}"></div>
+    </details>`;
+  }).filter(Boolean);
+  if(blocks.length === 0){ card.style.display = 'none'; return; }
+  card.style.display = 'block';
+  el.innerHTML = blocks.join('');
+  METERS.forEach(m => {
+    const totals = monthlyAllocation(m.id);
+    const target = document.getElementById('chart-'+m.id);
+    if(target) renderChart(target, totals, m.color);
+  });
+}
+
+// ---- timeline: chronological overview of every reading date ----
+function renderTimeline(){
+  const list = sorted();
+  const container = document.getElementById('timeline');
+  if(list.length === 0){ container.innerHTML = ''; return; }
+  if(list.length === 1){
+    container.innerHTML = `<div style="font-size:11.5px;color:var(--text-dim)">1 seul relevé : ${fmtDate(list[0].date)}</div>`;
+    return;
+  }
+  const minD = new Date(list[0].date+'T00:00:00Z');
+  const maxD = new Date(list[list.length-1].date+'T00:00:00Z');
+  const spanDays = Math.max(1, (maxD - minD) / 86400000);
+  const w = 480, h = 46, padX = 6, y = 20;
+
+  // year-boundary gridlines
+  const years = [];
+  for(let yr = minD.getUTCFullYear(); yr <= maxD.getUTCFullYear(); yr++) years.push(yr);
+  const gridlines = years.map(yr => {
+    const jan1 = new Date(Date.UTC(yr,0,1));
+    if(jan1 < minD || jan1 > maxD) return '';
+    const t = (jan1 - minD) / 86400000 / spanDays;
+    const x = padX + t * (w - padX*2);
+    return `<line x1="${x}" y1="8" x2="${x}" y2="${h-10}" stroke="var(--line)" stroke-width="1" stroke-dasharray="2,2"></line>
+            <text x="${x}" y="${h-2}" font-size="7" fill="var(--text-dim)" text-anchor="middle">${yr}</text>`;
+  }).join('');
+
+  const axisLine = `<line x1="${padX}" y1="${y}" x2="${w-padX}" y2="${y}" stroke="var(--line)" stroke-width="1"></line>`;
+  const dots = list.map(e => {
+    const d = new Date(e.date+'T00:00:00Z');
+    const t = (d - minD) / 86400000 / spanDays;
+    const x = padX + t * (w - padX*2);
+    return `<circle cx="${x}" cy="${y}" r="2.6" fill="var(--eau)" opacity="0.9"></circle>`;
+  }).join('');
+
+  const labelStart = `<text x="${padX}" y="${y-6}" font-size="7.5" fill="var(--text-dim)" text-anchor="start">${fmtDate(list[0].date)}</text>`;
+  const labelEnd = `<text x="${w-padX}" y="${y-6}" font-size="7.5" fill="var(--text-dim)" text-anchor="end">${fmtDate(list[list.length-1].date)}</text>`;
+
+  container.innerHTML = `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}">${gridlines}${axisLine}${dots}${labelStart}${labelEnd}</svg>
+    <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">${list.length} relevé(s) au total</div>`;
+}
+
+// ---- history ----
+function renderHistory(){
+  const list = sorted().slice().reverse();
+  const container = document.getElementById('history');
+  if(list.length === 0){ container.innerHTML = `<div class="empty">Aucun relevé pour l'instant.</div>`; return; }
+  container.innerHTML = list.map(e => {
+    const chips = METERS.filter(m => e[m.id] != null).map(m => {
+      const photo = e['photo_'+m.id];
+      const img = photo ? `<img src="${photo}" alt="photo ${m.label}">` : '';
+      return `<span class="chip">${img}<span class="dot" style="background:${m.color}"></span>${m.label} ${e[m.id]}</span>`;
+    }).join('');
+    return `
+      <div class="entry">
+        <div class="top">
+          <span class="date">${fmtDate(e.date)}</span>
+          <button class="del" onclick="deleteEntry(${e.id})">✕</button>
+        </div>
+        <div class="chips">${chips}</div>
+        ${e.note ? `<div class="raw" style="margin-top:5px;color:var(--text-dim)">📝 ${e.note}</div>` : ""}
+      </div>`;
+  }).join('');
+}
+
+function render(){
+  renderBanner();
+  renderStatus();
+  renderCharts();
+  renderTimeline();
+  renderHistory();
+}
+render();
+
+// ---- remember which sections are open/closed across visits ----
+(function restoreSectionStates(){
+  let states = {};
+  try{ states = JSON.parse(localStorage.getItem('ui_sections_v1') || '{}'); }catch(e){}
+  document.querySelectorAll('details.section-details').forEach(d => {
+    const key = d.dataset.key;
+    if(key in states) d.open = states[key];
+    d.addEventListener('toggle', () => {
+      states[key] = d.open;
+      localStorage.setItem('ui_sections_v1', JSON.stringify(states));
+    });
+  });
+})();
+</script>
+
+
+</body></html>
