@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0054)file:///C:/Users/rv/Downloads/releves-compteurs_4.html -->
+<!-- saved from url=(0054)file:///C:/Users/rv/Downloads/releves-compteurs_5.html -->
 <html lang="fr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -130,26 +130,15 @@
   }
   .field input:focus{outline:2px solid var(--eau);outline-offset:-1px;}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .grid1{display:grid;grid-template-columns:1fr;gap:10px;}
 
-  .input-photo{display:flex;gap:6px;align-items:stretch;}
-  .input-photo input{flex:1;min-width:0;}
-  .cam-btn{
-    flex-shrink:0;width:40px;
-    border:1px solid var(--line);border-radius:9px;background:var(--bg);
-    color:var(--text-dim);font-size:15px;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    background-size:cover;background-position:center;
-    padding:0;
+  .form-columns{
+    display:flex;gap:14px;align-items:flex-start;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;
+    margin:0 -4px 4px;padding:0 4px 2px;
   }
-  .cam-btn.has-photo{border-color:var(--eau);color:transparent;}
-  .ocr-status{font-size:10.5px;color:var(--text-dim);margin-top:4px;min-height:12px;}
-
-  .photo-row{display:flex;gap:8px;margin-top:6px;}
-  .photo-btn{
-    flex:1;border:1px dashed var(--line);border-radius:9px;background:transparent;
-    color:var(--text-dim);font-size:12px;padding:9px;text-align:center;cursor:pointer;
-  }
-  .photo-thumb{width:38px;height:38px;border-radius:7px;object-fit:cover;border:1px solid var(--line);flex-shrink:0;}
+  .form-columns > .group-details{flex:1 1 0;min-width:130px;margin-bottom:0;}
+  .form-columns > .group-details summary.group-title{margin-top:0;}
 
   button.primary{
     width:100%;background:var(--text);color:var(--bg);border:none;border-radius:10px;
@@ -158,14 +147,18 @@
   button.primary:active{opacity:0.85;}
 
   .status-row{
-    display:flex;justify-content:space-between;align-items:baseline;
-    padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px;gap:10px;
+    padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px;
   }
   .status-row:last-child{border-bottom:none;}
+  .status-row .top-line{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+  .status-row .last-val{font-weight:650;text-align:right;}
+  .status-row .last-val .diff{font-weight:500;color:var(--text-dim);font-size:11px;}
   .status-row .name{color:var(--text-dim);display:flex;align-items:center;}
-  .status-row .vals{text-align:right;}
-  .status-row .monthly{font-weight:650;}
-  .status-row .raw{color:var(--text-dim);font-size:11.5px;margin-top:1px;}
+  .status-row .season-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:8px;}
+  .status-row .season-cell{background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:5px 2px;text-align:center;}
+  .status-row .season-cell .label{font-size:11px;color:var(--text-dim);line-height:1.2;}
+  .status-row .season-cell .val{font-size:11px;font-weight:650;margin-top:2px;}
+  .cost{font-size:9.5px;color:var(--text-dim);font-weight:500;margin-top:1px;}
 
   .entry{border-bottom:1px solid var(--line);padding:12px 0;}
   .entry:last-child{border-bottom:none;}
@@ -175,11 +168,8 @@
   .chips{display:flex;flex-wrap:wrap;gap:6px;}
   .chip{
     font-size:11.5px;background:var(--bg);border:1px solid var(--line);border-radius:7px;
-    padding:4px 8px 4px 4px;display:flex;align-items:center;gap:5px;
+    padding:4px 8px;display:flex;align-items:center;gap:5px;
   }
-  .chip img{width:20px;height:20px;border-radius:5px;object-fit:cover;}
-  .entry .thumbs{display:flex;gap:6px;margin-top:6px;}
-  .entry .thumbs img{width:30px;height:30px;border-radius:6px;object-fit:cover;border:1px solid var(--line);}
 
   .empty{color:var(--text-dim);font-size:13px;text-align:center;padding:16px 0;}
 
@@ -209,92 +199,54 @@
       <input type="date" id="f-date">
     </div>
 
-    <details open="" class="group-details">
-      <summary class="group-title"><span class="dot" style="background:var(--eau)"></span>Eau (m³)</summary>
-      <div class="grid2" id="grid-eau">
+    <div class="form-columns">
+      <details open="" class="group-details">
+        <summary class="group-title"><span class="dot" style="background:var(--eau)"></span>Eau (m³)</summary>
+        <div class="grid1" id="grid-eau">
     <div class="field">
       <label for="f-eauGlobal">Global</label>
-      <div class="input-photo">
-        <input type="number" id="f-eauGlobal" inputmode="decimal" step="0.01" placeholder="index">
-        <button type="button" class="cam-btn" id="cam-eauGlobal" title="Photo Global">📷</button>
-      </div>
-      <input type="file" accept="image/*" capture="environment" id="file-eauGlobal" style="display:none">
-      <div class="ocr-status" id="ocr-status-eauGlobal"></div>
+      <input type="number" id="f-eauGlobal" inputmode="decimal" step="0.01" placeholder="index">
     </div>
     <div class="field">
       <label for="f-eauSous1">Arrosage</label>
-      <div class="input-photo">
-        <input type="number" id="f-eauSous1" inputmode="decimal" step="0.01" placeholder="index">
-        <button type="button" class="cam-btn" id="cam-eauSous1" title="Photo Arrosage">📷</button>
-      </div>
-      <input type="file" accept="image/*" capture="environment" id="file-eauSous1" style="display:none">
-      <div class="ocr-status" id="ocr-status-eauSous1"></div>
+      <input type="number" id="f-eauSous1" inputmode="decimal" step="0.01" placeholder="index">
     </div>
     <div class="field">
       <label for="f-eauSous2">Local</label>
-      <div class="input-photo">
-        <input type="number" id="f-eauSous2" inputmode="decimal" step="0.01" placeholder="index">
-        <button type="button" class="cam-btn" id="cam-eauSous2" title="Photo Local">📷</button>
-      </div>
-      <input type="file" accept="image/*" capture="environment" id="file-eauSous2" style="display:none">
-      <div class="ocr-status" id="ocr-status-eauSous2"></div>
+      <input type="number" id="f-eauSous2" inputmode="decimal" step="0.01" placeholder="index">
     </div>
     <div class="field">
       <label for="f-eauSous3">Piscine</label>
-      <div class="input-photo">
-        <input type="number" id="f-eauSous3" inputmode="decimal" step="0.01" placeholder="index">
-        <button type="button" class="cam-btn" id="cam-eauSous3" title="Photo Piscine">📷</button>
-      </div>
-      <input type="file" accept="image/*" capture="environment" id="file-eauSous3" style="display:none">
-      <div class="ocr-status" id="ocr-status-eauSous3"></div>
+      <input type="number" id="f-eauSous3" inputmode="decimal" step="0.01" placeholder="index">
     </div></div>
-    </details>
+      </details>
 
-    <details open="" class="group-details">
-      <summary class="group-title"><span class="dot" style="background:var(--elec)"></span>Électricité (kWh)</summary>
-      <div class="grid2" id="grid-elec">
+      <details open="" class="group-details">
+        <summary class="group-title"><span class="dot" style="background:var(--elec)"></span>Électricité (kWh)</summary>
+        <div class="grid1" id="grid-elec">
     <div class="field">
       <label for="f-elecVoiture">Voiture</label>
-      <div class="input-photo">
-        <input type="number" id="f-elecVoiture" inputmode="decimal" step="0.01" placeholder="index">
-        <button type="button" class="cam-btn" id="cam-elecVoiture" title="Photo Voiture">📷</button>
-      </div>
-      <input type="file" accept="image/*" capture="environment" id="file-elecVoiture" style="display:none">
-      <div class="ocr-status" id="ocr-status-elecVoiture"></div>
+      <input type="number" id="f-elecVoiture" inputmode="decimal" step="0.01" placeholder="index">
     </div>
     <div class="field">
       <label for="f-elecPiscine">Piscine</label>
-      <div class="input-photo">
-        <input type="number" id="f-elecPiscine" inputmode="decimal" step="0.01" placeholder="index">
-        <button type="button" class="cam-btn" id="cam-elecPiscine" title="Photo Piscine">📷</button>
-      </div>
-      <input type="file" accept="image/*" capture="environment" id="file-elecPiscine" style="display:none">
-      <div class="ocr-status" id="ocr-status-elecPiscine"></div>
+      <input type="number" id="f-elecPiscine" inputmode="decimal" step="0.01" placeholder="index">
     </div>
     <div class="field">
       <label for="f-elecPac">PAC</label>
-      <div class="input-photo">
-        <input type="number" id="f-elecPac" inputmode="decimal" step="0.01" placeholder="index">
-        <button type="button" class="cam-btn" id="cam-elecPac" title="Photo PAC">📷</button>
-      </div>
-      <input type="file" accept="image/*" capture="environment" id="file-elecPac" style="display:none">
-      <div class="ocr-status" id="ocr-status-elecPac"></div>
+      <input type="number" id="f-elecPac" inputmode="decimal" step="0.01" placeholder="index">
     </div></div>
-    </details>
+      </details>
 
-    <details open="" class="group-details">
-      <summary class="group-title"><span class="dot" style="background:var(--pac)"></span>PAC — chaleur (kWh th.)</summary>
-      <div class="grid2" id="grid-pac">
+      <details open="" class="group-details">
+        <summary class="group-title"><span class="dot" style="background:var(--pac)"></span>PAC (kWh th.)</summary>
+        <div class="grid1" id="grid-pac">
     <div class="field">
       <label for="f-pacChaleur">Chaleur</label>
-      <div class="input-photo">
-        <input type="number" id="f-pacChaleur" inputmode="decimal" step="0.01" placeholder="index">
-        <button type="button" class="cam-btn" id="cam-pacChaleur" title="Photo Chaleur">📷</button>
-      </div>
-      <input type="file" accept="image/*" capture="environment" id="file-pacChaleur" style="display:none">
-      <div class="ocr-status" id="ocr-status-pacChaleur"></div>
+      <input type="number" id="f-pacChaleur" inputmode="decimal" step="0.01" placeholder="index">
     </div></div>
-    </details>
+      </details>
+    </div>
 
     <div class="field" style="margin-top:14px">
       <label for="f-note">Remarque (facultatif)</label>
@@ -307,7 +259,6 @@
   <div class="card" id="chart-card" style="display: block;">
     <details open="" class="section-details" data-key="graphiques">
       <summary class="card-summary">Graphiques — comparaison mensuelle</summary>
-      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Axe janvier → décembre + colonne « Total » (cumul annuel) · une barre par année, côte à côte · valeur et millésime affichés au-dessus de chaque barre</div>
       <div id="charts"><details open="" class="chart-block-details">
       <summary><span><span class="dot" style="background:var(--eau)"></span>Eau · Global (m³/mois)</span></summary>
       <div id="chart-eauGlobal"><svg viewBox="0 0 480 128" width="100%" height="128"><rect x="4" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="39.69230769230769" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="75.38461538461539" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="111.07692307692308" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="146.76923076923077" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="182.46153846153845" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="218.15384615384616" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="253.84615384615387" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="289.53846153846155" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="325.2307692307692" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="360.9230769230769" y="6" width="35.69230769230769" height="110" fill="var(--bg)"></rect><rect x="396.61538461538464" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.025)"></rect><rect x="440.3076923076923" y="6" width="35.69230769230769" height="110" fill="rgba(255,255,255,0.04)"></rect><line x1="4" y1="112" x2="476" y2="112" stroke="var(--line)" stroke-width="1"></line><rect x="23.01686153846154" y="106.71326769447273" width="13.463138461538461" height="5.286732305527261" rx="1.5" fill="var(--eau)" opacity="1.00"></rect><text x="29.748430769230772" y="104.71326769447273" font-size="6.2" fill="var(--text-dim)" text-anchor="middle">8</text>
@@ -467,73 +418,122 @@
   <div class="card" id="status-card" style="display: block;">
     <details open="" class="section-details" data-key="conso">
       <summary class="card-summary">État actuel — consommation mensuelle</summary>
+      <div style="font-size:11px;color:var(--text-dim);margin-bottom:10px;">Printemps : mars-mai · Été : juin-août · Automne : sept.-nov. · Hiver : déc.-févr.</div>
       <div id="status">
     <details open="" class="group-details">
       <summary class="group-title">Eau</summary>
       
         <div class="status-row">
-          <span class="name"><span class="dot" style="background:var(--eau)"></span>Global</span>
-          <span class="vals">
-            <div class="monthly">63.5 m³/mois</div>
-            <div class="raw">+98.00 m³ en 47 j · dernier : 2708 le 19.07.2026</div>
-          </span>
+          <div class="top-line">
+            <span class="name"><span class="dot" style="background:var(--eau)"></span>Global</span>
+            <div class="last-val">63.5 m³ <span class="diff">(+6% vs ☀️)</span><div class="cost">≈ 380.82 CHF</div></div>
+          </div>
+          <div class="season-grid">
+            <div class="season-cell"><div class="label">Générale</div><div class="val">31.9 m³</div><div class="cost">≈ 191.14 CHF</div></div>
+            <div class="season-cell"><div class="label">🌱</div><div class="val">27.3 m³</div><div class="cost">≈ 163.60 CHF</div></div>
+            <div class="season-cell"><div class="label">☀️</div><div class="val">59.6 m³</div><div class="cost">≈ 357.81 CHF</div></div>
+            <div class="season-cell"><div class="label">🍂</div><div class="val">11.8 m³</div><div class="cost">≈ 70.70 CHF</div></div>
+            <div class="season-cell"><div class="label">❄️</div><div class="val">10.2 m³</div><div class="cost">≈ 61.34 CHF</div></div>
+          </div>
         </div>
         <div class="status-row">
-          <span class="name"><span class="dot" style="background:var(--eau)"></span>Arrosage</span>
-          <span class="vals">
-            <div class="monthly">51.2 m³/mois</div>
-            <div class="raw">+79.00 m³ en 47 j · dernier : 255 le 19.07.2026</div>
-          </span>
+          <div class="top-line">
+            <span class="name"><span class="dot" style="background:var(--eau)"></span>Arrosage</span>
+            <div class="last-val">51.2 m³ <span class="diff">(+51% vs ☀️)</span><div class="cost">≈ 306.99 CHF</div></div>
+          </div>
+          <div class="season-grid">
+            <div class="season-cell"><div class="label">Générale</div><div class="val">14.9 m³</div><div class="cost">≈ 89.22 CHF</div></div>
+            <div class="season-cell"><div class="label">🌱</div><div class="val">15.4 m³</div><div class="cost">≈ 92.67 CHF</div></div>
+            <div class="season-cell"><div class="label">☀️</div><div class="val">33.9 m³</div><div class="cost">≈ 203.15 CHF</div></div>
+            <div class="season-cell"><div class="label">🍂</div><div class="val">3.1 m³</div><div class="cost">≈ 18.36 CHF</div></div>
+            <div class="season-cell"><div class="label">❄️</div><div class="val">0.8 m³</div><div class="cost">≈ 4.71 CHF</div></div>
+          </div>
         </div>
         <div class="status-row">
-          <span class="name"><span class="dot" style="background:var(--eau)"></span>Local</span>
-          <span class="vals">
-            <div class="monthly">0.0 m³/mois</div>
-            <div class="raw">+0.04 m³ en 47 j · dernier : 1.76 le 19.07.2026</div>
-          </span>
+          <div class="top-line">
+            <span class="name"><span class="dot" style="background:var(--eau)"></span>Local</span>
+            <div class="last-val">0.0 m³ <span class="diff">(+159% vs ☀️)</span><div class="cost">≈ 0.16 CHF</div></div>
+          </div>
+          <div class="season-grid">
+            <div class="season-cell"><div class="label">Générale</div><div class="val">0.1 m³</div><div class="cost">≈ 0.81 CHF</div></div>
+            <div class="season-cell"><div class="label">🌱</div><div class="val">0.4 m³</div><div class="cost">≈ 2.33 CHF</div></div>
+            <div class="season-cell"><div class="label">☀️</div><div class="val">0.0 m³</div><div class="cost">≈ 0.06 CHF</div></div>
+            <div class="season-cell"><div class="label">🍂</div><div class="val">0.0 m³</div><div class="cost">≈ 0.00 CHF</div></div>
+            <div class="season-cell"><div class="label">❄️</div><div class="val">0.2 m³</div><div class="cost">≈ 1.11 CHF</div></div>
+          </div>
         </div>
         <div class="status-row">
-          <span class="name"><span class="dot" style="background:var(--eau)"></span>Piscine</span>
-          <span class="vals">
-            <div class="monthly">5.3 m³/mois</div>
-            <div class="raw">+8.14 m³ en 47 j · dernier : 11.28 le 19.07.2026</div>
-          </span>
+          <div class="top-line">
+            <span class="name"><span class="dot" style="background:var(--eau)"></span>Piscine</span>
+            <div class="last-val">5.3 m³ <span class="diff">(+144% vs ☀️)</span><div class="cost">≈ 31.63 CHF</div></div>
+          </div>
+          <div class="season-grid">
+            <div class="season-cell"><div class="label">Générale</div><div class="val">0.8 m³</div><div class="cost">≈ 4.88 CHF</div></div>
+            <div class="season-cell"><div class="label">🌱</div><div class="val">0.6 m³</div><div class="cost">≈ 3.61 CHF</div></div>
+            <div class="season-cell"><div class="label">☀️</div><div class="val">2.2 m³</div><div class="cost">≈ 12.95 CHF</div></div>
+            <div class="season-cell"><div class="label">🍂</div><div class="val">0.0 m³</div><div class="cost">≈ 0.29 CHF</div></div>
+            <div class="season-cell"><div class="label">❄️</div><div class="val">0.0 m³</div><div class="cost">≈ 0.00 CHF</div></div>
+          </div>
         </div>
     </details>
     <details open="" class="group-details">
       <summary class="group-title">Élec</summary>
       
         <div class="status-row">
-          <span class="name"><span class="dot" style="background:var(--elec)"></span>Voiture</span>
-          <span class="vals">
-            <div class="monthly">156.7 kWh/mois</div>
-            <div class="raw">+242.00 kWh en 47 j · dernier : 3934 le 19.07.2026</div>
-          </span>
+          <div class="top-line">
+            <span class="name"><span class="dot" style="background:var(--elec)"></span>Voiture</span>
+            <div class="last-val">156.7 kWh <span class="diff">(-11% vs ☀️)</span><div class="cost">≈ 39.18 CHF</div></div>
+          </div>
+          <div class="season-grid">
+            <div class="season-cell"><div class="label">Générale</div><div class="val">231.0 kWh</div><div class="cost">≈ 57.75 CHF</div></div>
+            <div class="season-cell"><div class="label">🌱</div><div class="val">300.3 kWh</div><div class="cost">≈ 75.08 CHF</div></div>
+            <div class="season-cell"><div class="label">☀️</div><div class="val">175.4 kWh</div><div class="cost">≈ 43.86 CHF</div></div>
+            <div class="season-cell"><div class="label">🍂</div><div class="val">219.5 kWh</div><div class="cost">≈ 54.87 CHF</div></div>
+            <div class="season-cell"><div class="label">❄️</div><div class="val">265.8 kWh</div><div class="cost">≈ 66.44 CHF</div></div>
+          </div>
         </div>
         <div class="status-row">
-          <span class="name"><span class="dot" style="background:var(--elec)"></span>Piscine</span>
-          <span class="vals">
-            <div class="monthly">447.5 kWh/mois</div>
-            <div class="raw">+691.00 kWh en 47 j · dernier : 5618 le 19.07.2026</div>
-          </span>
+          <div class="top-line">
+            <span class="name"><span class="dot" style="background:var(--elec)"></span>Piscine</span>
+            <div class="last-val">447.5 kWh <span class="diff">(+14% vs ☀️)</span><div class="cost">≈ 111.88 CHF</div></div>
+          </div>
+          <div class="season-grid">
+            <div class="season-cell"><div class="label">Générale</div><div class="val">310.9 kWh</div><div class="cost">≈ 77.71 CHF</div></div>
+            <div class="season-cell"><div class="label">🌱</div><div class="val">279.0 kWh</div><div class="cost">≈ 69.76 CHF</div></div>
+            <div class="season-cell"><div class="label">☀️</div><div class="val">391.2 kWh</div><div class="cost">≈ 97.80 CHF</div></div>
+            <div class="season-cell"><div class="label">🍂</div><div class="val">346.4 kWh</div><div class="cost">≈ 86.60 CHF</div></div>
+            <div class="season-cell"><div class="label">❄️</div><div class="val">173.2 kWh</div><div class="cost">≈ 43.31 CHF</div></div>
+          </div>
         </div>
         <div class="status-row">
-          <span class="name"><span class="dot" style="background:var(--elec)"></span>PAC</span>
-          <span class="vals">
-            <div class="monthly">83.5 kWh/mois</div>
-            <div class="raw">+129.00 kWh en 47 j · dernier : 6156 le 19.07.2026</div>
-          </span>
+          <div class="top-line">
+            <span class="name"><span class="dot" style="background:var(--elec)"></span>PAC</span>
+            <div class="last-val">83.5 kWh <span class="diff">(+11% vs ☀️)</span><div class="cost">≈ 20.89 CHF</div></div>
+          </div>
+          <div class="season-grid">
+            <div class="season-cell"><div class="label">Générale</div><div class="val">337.6 kWh</div><div class="cost">≈ 84.40 CHF</div></div>
+            <div class="season-cell"><div class="label">🌱</div><div class="val">285.3 kWh</div><div class="cost">≈ 71.33 CHF</div></div>
+            <div class="season-cell"><div class="label">☀️</div><div class="val">75.3 kWh</div><div class="cost">≈ 18.82 CHF</div></div>
+            <div class="season-cell"><div class="label">🍂</div><div class="val">274.2 kWh</div><div class="cost">≈ 68.55 CHF</div></div>
+            <div class="season-cell"><div class="label">❄️</div><div class="val">791.5 kWh</div><div class="cost">≈ 197.88 CHF</div></div>
+          </div>
         </div>
     </details>
     <details open="" class="group-details">
       <summary class="group-title">PAC</summary>
       
         <div class="status-row">
-          <span class="name"><span class="dot" style="background:var(--pac)"></span>Chaleur</span>
-          <span class="vals">
-            <div class="monthly">215.0 kWh th./mois</div>
-            <div class="raw">+332.00 kWh th. en 47 j · dernier : 16743 le 19.07.2026</div>
-          </span>
+          <div class="top-line">
+            <span class="name"><span class="dot" style="background:var(--pac)"></span>Chaleur</span>
+            <div class="last-val">215.0 kWh th. <span class="diff">(+13% vs ☀️)</span></div>
+          </div>
+          <div class="season-grid">
+            <div class="season-cell"><div class="label">Générale</div><div class="val">885.7 kWh th.</div></div>
+            <div class="season-cell"><div class="label">🌱</div><div class="val">869.6 kWh th.</div></div>
+            <div class="season-cell"><div class="label">☀️</div><div class="val">189.8 kWh th.</div></div>
+            <div class="season-cell"><div class="label">🍂</div><div class="val">887.0 kWh th.</div></div>
+            <div class="season-cell"><div class="label">❄️</div><div class="val">1778.6 kWh th.</div></div>
+          </div>
         </div>
     </details></div>
     </details>
@@ -901,7 +901,7 @@
 
 </main>
 
-<footer>Données stockées uniquement sur cet appareil (localStorage). Aucune synchronisation externe. Consommation mensuelle = écart entre deux relevés ramené à 30,44 jours.</footer>
+<footer>Données stockées uniquement sur cet appareil (localStorage). Aucune synchronisation externe.</footer>
 
 <script>
 const STORE_KEY = "releves_compteurs_v2";
@@ -943,18 +943,13 @@ let entries = loadEntries();
   }catch(err){}
 })();
 
-// ---- build entry form grids: one number input + one photo button per meter ----
+// ---- build entry form grids: one number input per meter ----
 function buildGrid(groupId, containerId){
   const el = document.getElementById(containerId);
   el.innerHTML = METERS.filter(m => m.group === groupId).map(m => `
     <div class="field">
       <label for="f-${m.id}">${m.label}</label>
-      <div class="input-photo">
-        <input type="number" id="f-${m.id}" inputmode="decimal" step="0.01" placeholder="index">
-        <button type="button" class="cam-btn" id="cam-${m.id}" title="Photo ${m.label}">📷</button>
-      </div>
-      <input type="file" accept="image/*" capture="environment" id="file-${m.id}" style="display:none">
-      <div class="ocr-status" id="ocr-status-${m.id}"></div>
+      <input type="number" id="f-${m.id}" inputmode="decimal" step="0.01" placeholder="index">
     </div>`).join('');
 }
 buildGrid('eau','grid-eau');
@@ -962,94 +957,6 @@ buildGrid('elec','grid-elec');
 buildGrid('pac','grid-pac');
 
 document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
-
-// ---- OCR (test) : lecture automatique de l'index à partir de la photo, via Tesseract.js chargé à la demande ----
-// La bibliothèque n'est récupérée qu'au premier usage (pas de coût au chargement de la page).
-let ocrWorkerPromise = null;
-
-function loadTesseractScript(){
-  return new Promise((resolve, reject) => {
-    if(window.Tesseract){ resolve(); return; }
-    const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-    s.onload = () => resolve();
-    s.onerror = () => reject(new Error('Échec du chargement de la bibliothèque OCR'));
-    document.head.appendChild(s);
-  });
-}
-
-async function getOcrWorker(){
-  if(!ocrWorkerPromise){
-    ocrWorkerPromise = (async () => {
-      await loadTesseractScript();
-      const worker = await Tesseract.createWorker('eng');
-      await worker.setParameters({ tessedit_char_whitelist: '0123456789.' });
-      return worker;
-    })();
-  }
-  return ocrWorkerPromise;
-}
-
-async function runOcr(dataUrl, meterId){
-  const statusEl = document.getElementById('ocr-status-'+meterId);
-  const input = document.getElementById('f-'+meterId);
-  if(statusEl) statusEl.textContent = 'Chargement OCR…';
-  try{
-    const worker = await getOcrWorker();
-    if(statusEl) statusEl.textContent = 'Lecture en cours…';
-    const { data } = await worker.recognize(dataUrl);
-    const raw = (data.text || '').trim();
-    const match = raw.match(/\d+(\.\d+)?/);
-    if(!match){
-      if(statusEl) statusEl.textContent = '⚠️ OCR : chiffres non détectés — saisir manuellement';
-      return;
-    }
-    const val = match[0];
-    // reprendre une photo signifie vouloir une nouvelle lecture : on remplace la valeur, toujours modifiable ensuite
-    input.value = val;
-    input.dataset.ocrGuess = '1';
-    if(statusEl) statusEl.innerHTML = `⚠️ OCR : ${val} — non vérifié, à contrôler puis corriger si besoin`;
-  }catch(err){
-    if(statusEl) statusEl.textContent = 'OCR indisponible (connexion requise au premier essai)';
-  }
-}
-
-// ---- photo capture with compression, one per meter ----
-function wireMeterPhoto(meterId){
-  const btn = document.getElementById('cam-'+meterId);
-  const input = document.getElementById('file-'+meterId);
-  const numberInput = document.getElementById('f-'+meterId);
-  numberInput.addEventListener('input', () => {
-    delete numberInput.dataset.ocrGuess;
-    const statusEl = document.getElementById('ocr-status-'+meterId);
-    if(statusEl && statusEl.textContent.startsWith('⚠️')) statusEl.textContent = '';
-  });
-  btn.addEventListener('click', () => input.click());
-  input.addEventListener('change', () => {
-    const file = input.files[0];
-    if(!file) return;
-    const img = new Image();
-    const reader = new FileReader();
-    reader.onload = e => { img.src = e.target.result; };
-    img.onload = () => {
-      const maxW = 480;
-      const scale = Math.min(1, maxW / img.width);
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width * scale;
-      canvas.height = img.height * scale;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
-      btn.dataset.photo = dataUrl;
-      btn.classList.add('has-photo');
-      btn.style.backgroundImage = `url(${dataUrl})`;
-      btn.textContent = '';
-      runOcr(dataUrl, meterId);
-    };
-    reader.readAsDataURL(file);
-  });
-}
-METERS.forEach(m => wireMeterPhoto(m.id));
 
 // ---- save entry ----
 document.getElementById('btn-save').addEventListener('click', () => {
@@ -1060,9 +967,6 @@ document.getElementById('btn-save').addEventListener('click', () => {
     const raw = document.getElementById('f-'+m.id).value;
     entry[m.id] = raw === "" ? null : parseFloat(raw);
   });
-  METERS.forEach(m => {
-    entry['photo_'+m.id] = document.getElementById('cam-'+m.id).dataset.photo || null;
-  });
   const noteVal = document.getElementById('f-note').value.trim();
   entry.note = noteVal === "" ? null : noteVal;
 
@@ -1070,16 +974,7 @@ document.getElementById('btn-save').addEventListener('click', () => {
   saveEntries(entries);
 
   METERS.forEach(m => {
-    const numInput = document.getElementById('f-'+m.id);
-    numInput.value = "";
-    delete numInput.dataset.ocrGuess;
-    const btn = document.getElementById('cam-'+m.id);
-    delete btn.dataset.photo;
-    btn.classList.remove('has-photo');
-    btn.style.backgroundImage = '';
-    btn.textContent = '📷';
-    const statusEl = document.getElementById('ocr-status-'+m.id);
-    if(statusEl) statusEl.textContent = '';
+    document.getElementById('f-'+m.id).value = "";
   });
   document.getElementById('f-note').value = "";
 
@@ -1220,6 +1115,26 @@ function annualStack(totals, years){
   }));
 }
 
+// overall average across every available month — kind 'all' ou une des 4 saisons météorologiques, toutes années confondues
+const SEASON_MONTHS = {
+  printemps: [3,4,5],
+  ete: [6,7,8],
+  automne: [9,10,11],
+  hiver: [12,1,2]
+};
+const SEASON_EMOJI = { printemps:'🌱', ete:'☀️', automne:'🍂', hiver:'❄️' };
+function monthToSeason(m){
+  return Object.keys(SEASON_MONTHS).find(k => SEASON_MONTHS[k].includes(m));
+}
+function seasonAverage(totals, kind){
+  const vals = Object.keys(totals).filter(k => {
+    if(kind === 'all') return true;
+    const m = parseInt(k.split('-')[1], 10);
+    return SEASON_MONTHS[kind].includes(m);
+  }).map(k => totals[k]);
+  return vals.length ? vals.reduce((a,b)=>a+b,0) / vals.length : null;
+}
+
 // ---- status card: latest value + last monthly consumption per meter, grouped & collapsible per category ----
 function renderStatus(){
   const card = document.getElementById('status-card');
@@ -1228,22 +1143,49 @@ function renderStatus(){
     const rows = METERS.filter(m => m.group === g).map(m => {
       const s = meterSeries(m.id);
       if(s.length === 0) return null;
-      const last = s[s.length - 1];
+
+      const totals = monthlyAllocation(m.id);
+      const fmt = v => v == null ? '—' : `${v.toFixed(1)} ${m.unit}`;
+      // coût indicatif : 0.25 CHF/kWh (élec) · 6 CHF/m³ (eau) — non applicable à la chaleur PAC (kWh th., non facturée telle quelle)
+      const costFor = v => {
+        if(v == null) return '';
+        if(m.unit === 'm³') return `<div class="cost">≈ ${(v*6).toFixed(2)} CHF</div>`;
+        if(m.unit === 'kWh') return `<div class="cost">≈ ${(v*0.25).toFixed(2)} CHF</div>`;
+        return '';
+      };
       const periods = meterPeriods(m.id);
       const lastPeriod = periods[periods.length - 1];
-      const monthlyTxt = lastPeriod && lastPeriod.monthly != null
-        ? `${lastPeriod.monthly.toFixed(1)} ${m.unit}/mois`
-        : '—';
-      const rawTxt = lastPeriod
-        ? `+${lastPeriod.delta.toFixed(2)} ${m.unit} en ${lastPeriod.days} j`
-        : `1 seul relevé`;
+      const dernier = lastPeriod && lastPeriod.monthly != null ? lastPeriod.monthly : null;
+
+      const lastMonth = parseInt(s[s.length-1].date.split('-')[1], 10);
+      const currentSeason = monthToSeason(lastMonth);
+      const general = seasonAverage(totals, 'all');
+      const printemps = seasonAverage(totals, 'printemps');
+      const ete = seasonAverage(totals, 'ete');
+      const automne = seasonAverage(totals, 'automne');
+      const hiver = seasonAverage(totals, 'hiver');
+      const seasonVals = { printemps, ete, automne, hiver };
+      const refAvg = seasonVals[currentSeason];
+
+      let diffTxt = '';
+      if(dernier != null && refAvg != null && refAvg !== 0){
+        const pct = ((dernier - refAvg) / refAvg) * 100;
+        diffTxt = ` <span class="diff">(${pct>=0?'+':''}${pct.toFixed(0)}% vs ${SEASON_EMOJI[currentSeason]})</span>`;
+      }
+
       return `
         <div class="status-row">
-          <span class="name"><span class="dot" style="background:${m.color}"></span>${m.label}</span>
-          <span class="vals">
-            <div class="monthly">${monthlyTxt}</div>
-            <div class="raw">${rawTxt} · dernier : ${last.value} le ${fmtDate(last.date)}</div>
-          </span>
+          <div class="top-line">
+            <span class="name"><span class="dot" style="background:${m.color}"></span>${m.label}</span>
+            <div class="last-val">${fmt(dernier)}${diffTxt}${costFor(dernier)}</div>
+          </div>
+          <div class="season-grid">
+            <div class="season-cell"><div class="label">Générale</div><div class="val">${fmt(general)}</div>${costFor(general)}</div>
+            <div class="season-cell"><div class="label">🌱</div><div class="val">${fmt(printemps)}</div>${costFor(printemps)}</div>
+            <div class="season-cell"><div class="label">☀️</div><div class="val">${fmt(ete)}</div>${costFor(ete)}</div>
+            <div class="season-cell"><div class="label">🍂</div><div class="val">${fmt(automne)}</div>${costFor(automne)}</div>
+            <div class="season-cell"><div class="label">❄️</div><div class="val">${fmt(hiver)}</div>${costFor(hiver)}</div>
+          </div>
         </div>`;
     }).filter(Boolean);
     return { g, rows };
@@ -1398,11 +1340,9 @@ function renderHistory(){
   const container = document.getElementById('history');
   if(list.length === 0){ container.innerHTML = `<div class="empty">Aucun relevé pour l'instant.</div>`; return; }
   container.innerHTML = list.map(e => {
-    const chips = METERS.filter(m => e[m.id] != null).map(m => {
-      const photo = e['photo_'+m.id];
-      const img = photo ? `<img src="${photo}" alt="photo ${m.label}">` : '';
-      return `<span class="chip">${img}<span class="dot" style="background:${m.color}"></span>${m.label} ${e[m.id]}</span>`;
-    }).join('');
+    const chips = METERS.filter(m => e[m.id] != null).map(m =>
+      `<span class="chip"><span class="dot" style="background:${m.color}"></span>${m.label} ${e[m.id]}</span>`
+    ).join('');
     return `
       <div class="entry">
         <div class="top">
