@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notes de frais — consolidation mensuelle</title>
+<style>
+  :root{
+    --encre:#0f172a; --gris:#64748b; --trait:#cbd5e1; --papier:#ffffff;
+    --fond:#f2f1ee; --alerte:#b45309; --alerte-fond:#fffbeb; --alerte-trait:#f59e0b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fond);color:var(--encre);
+       font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px}
+  .page{max-width:900px;margin:0 auto;padding:24px 16px 60px}
+  header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px;
+         border-bottom:2px solid var(--encre);padding-bottom:12px}
+  h1{font-size:22px;margin:2px 0 0;letter-spacing:-.01em}
+  .eyebrow{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;text-transform:uppercase;
+           letter-spacing:.14em;color:var(--gris);margin:0}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+  .total{font-size:26px}
+  .barre{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:16px}
+  button,select,input{font:inherit}
+  button{border:1px solid var(--trait);background:var(--papier);padding:8px 12px;cursor:pointer}
+  button:hover{background:#f8fafc}
+  button[disabled]{opacity:.4;cursor:not-allowed}
+  button.principal{background:var(--encre);color:#fff;border-color:var(--encre)}
+  button.principal:hover{background:#334155}
+  button.cadre{border-color:var(--encre)}
+  select,input[type=text]{border:1px solid var(--trait);background:var(--papier);padding:7px 10px;width:100%}
+  input.alerte,select.alerte{border-color:var(--alerte-trait);background:var(--alerte-fond)}
+  .synthese{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--trait);
+            border:1px solid var(--trait);margin-top:16px}
+  @media(min-width:640px){.synthese{grid-template-columns:repeat(4,1fr)}}
+  .synthese div{background:var(--papier);padding:8px 12px}
+  .synthese .v{font-family:ui-monospace,monospace;font-size:18px;font-variant-numeric:tabular-nums}
+  .bloc{border:1px solid var(--trait);background:var(--papier);margin-top:16px}
+  .bloc>.titre{border-bottom:1px solid var(--encre);padding:8px 12px}
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;font-family:ui-monospace,monospace;font-size:11px;text-transform:uppercase;
+     letter-spacing:.08em;color:var(--gris);font-weight:400;padding:8px 12px;border-bottom:1px solid var(--encre)}
+  td{padding:8px 12px;border-bottom:1px solid #e2e8f0;vertical-align:top}
+  tbody tr:last-child td{border-bottom:0}
+  .droite{text-align:right}
+  tfoot td{border-top:2px solid var(--encre);border-bottom:0;font-family:ui-monospace,monospace}
+  .sec{color:var(--gris);font-size:12px}
+  .flag{color:var(--alerte);font-size:12px;margin-top:2px}
+  .banniere{border-left:4px solid var(--alerte-trait);background:var(--alerte-fond);padding:10px 12px;
+            margin-top:16px;display:flex;gap:10px;align-items:flex-start}
+  .banniere button{border:0;background:none;padding:0;color:var(--gris)}
+  .fiche{display:grid;gap:20px;margin-top:20px}
+  @media(min-width:760px){.fiche{grid-template-columns:230px 1fr}}
+  .fiche img{width:100%;border:1px solid var(--trait);background:#fff}
+  .carte{border:1px solid var(--trait);background:var(--papier);padding:14px}
+  .carte .val{font-size:17px;font-weight:600;margin:4px 0 2px}
+  .grille{display:grid;gap:12px;margin-top:16px}
+  @media(min-width:560px){.grille{grid-template-columns:1fr 1fr}}
+  label>span{display:flex;gap:6px;align-items:center;font-size:11px;text-transform:uppercase;
+             letter-spacing:.08em;color:var(--gris)}
+  label>span .av{color:var(--alerte)}
+  .duo{display:flex;gap:8px;margin-top:4px}
+  .duo .court{width:90px}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+  .icone{border:0;background:none;padding:4px;color:var(--gris);font-size:15px;line-height:1}
+  .icone:hover{color:var(--encre);background:none}
+  .attente{text-align:center;padding:70px 0;color:var(--gris)}
+  .vide{text-align:center;color:var(--gris);padding:40px 12px}
+  dialog::backdrop{background:rgba(15,23,42,.8)}
+  dialog{border:1px solid var(--trait);padding:10px;max-width:460px;width:92%}
+  dialog img{width:100%}
+  .note{font-size:12px;color:var(--gris);margin-top:12px}
+  .spin{display:inline-block;animation:t 1s linear infinite}
+  @keyframes t{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div>
+      <p class="eyebrow">Frais professionnels</p>
+      <h1>Consolidation mensuelle</h1>
+    </div>
+    <div style="text-align:right">
+      <p class="eyebrow" id="lblMois">Total</p>
+      <p class="mono total" id="totalHaut" style="margin:2px 0 0">0.00</p>
+    </div>
+  </header>
+
+  <div id="banniere" class="banniere" hidden>
+    <span style="flex:1" id="msg"></span>
+    <button onclick="fermerMsg()">✕</button>
+  </div>
+
+  <!-- ------- Registre ------- -->
+  <section id="vueListe">
+    <div class="barre">
+      <button class="principal" onclick="fichier.click()">Photographier un ticket</button>
+      <input id="fichier" type="file" accept="image/*" capture="environment" hidden>
+      <button onclick="saisieManuelle()">Saisir sans photo</button>
+      <select id="selMois" style="width:auto" onchange="setMois(this.value)"></select>
+      <button class="cadre" id="btnPdf" onclick="exporterPDF()">Extraire le PDF du mois</button>
+      <button id="btnCsv" onclick="exporterCSV()">Exporter en CSV</button>
+      <button onclick="reglages()" title="Clé d'API">Réglages</button>
+    </div>
+
+    <div class="synthese" id="synthese"></div>
+    <p class="note" id="noteDevises" hidden></p>
+
+    <div class="bloc" id="blocComptes" hidden style="overflow-x:auto">
+      <div class="titre eyebrow">Récapitulation par compte</div>
+      <table>
+        <thead><tr>
+          <th>N° imputation</th><th class="droite">HT</th><th class="droite">TVA 8.1%</th>
+          <th class="droite">TVA 2.6%</th><th class="droite">TTC</th>
+        </tr></thead>
+        <tbody id="tbComptes"></tbody>
+        <tfoot id="tfComptes"></tfoot>
+      </table>
+      <p class="note" id="noteRecap" style="margin:8px 12px" hidden></p>
+    </div>
+
+    <div class="bloc" style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>Date</th><th>Commerçant</th><th>Compte</th>
+          <th class="droite">Montant</th><th class="droite">TVA</th><th></th>
+        </tr></thead>
+        <tbody id="tbDetail"></tbody>
+        <tfoot id="tfDetail"></tfoot>
+      </table>
+    </div>
+
+    <p class="note">
+      L'imputation est une proposition fondée sur les seules informations lisibles du ticket ; elle
+      reste à valider. Aucun montant, aucune date ni aucun taux n'est complété automatiquement.
+    </p>
+  </section>
+
+  <!-- ------- Analyse ------- -->
+  <section id="vueAnalyse" hidden>
+    <div class="attente">
+      <p class="mono"><span class="spin">◐</span></p>
+      <p class="eyebrow">Lecture du ticket</p>
+      <p>Les champs illisibles seront signalés, pas devinés.</p>
+    </div>
+  </section>
+
+  <!-- ------- Fiche ------- -->
+  <section id="vueFiche" hidden></section>
+
+  <dialog id="dlgPhoto"><img id="imgPhoto" alt="Justificatif"><button style="width:100%;margin-top:8px" onclick="dlgPhoto.close()">Fermer</button></dialog>
+</div>
+
+<script>
+/* ================= Plan des rubriques ================= */
+const RUBRIQUES = [
+  {code:"4092",libelle:"Transport",aide:"Transports publics, train, taxi, avion, déplacements professionnels"},
+  {code:"4093",libelle:"Parking",aide:"Parking, horodateur, macaron"},
+  {code:"4221",libelle:"Frais bancaires",aide:"Commissions, frais de compte et de carte"},
+  {code:"4610",libelle:"Dropbox",aide:"Abonnement Dropbox"},
+  {code:"4700",libelle:"Fournitures de bureau",aide:"Papeterie, consommables, cartouches"},
+  {code:"4704",libelle:"Mobilier et machines de bureau",aide:"Mobilier, imprimantes, machines"},
+  {code:"4711",libelle:"Administration, Etat",aide:"Émoluments, taxes et débours administratifs"},
+  {code:"4712",libelle:"Abonnement journaux",aide:"Presse, revues, abonnements de lecture"},
+  {code:"4713",libelle:"Sortie bureau",aide:"Sortie ou manifestation d'entreprise"},
+  {code:"4800",libelle:"Matériel informatique",aide:"Ordinateurs, écrans, périphériques, câblage"},
+  {code:"4900",libelle:"Frais vélos",aide:"Achat, réparation et accessoires de vélo"},
+  {code:"4916",libelle:"Entretien, charges, vignette, divers accessoires",aide:"Véhicule : entretien, vignette, accessoires"},
+  {code:"4985",libelle:"Restaurant",aide:"Repas, café, restauration"}
+];
+const rub = c => RUBRIQUES.find(r => r.code === c) || null;
+const rubLabel = c => rub(c) ? rub(c).code + " · " + rub(c).libelle : "—";
+
+const MOIS = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+const IDX_KEY = "ndf:index:v1", IMG_KEY = id => "ndf:img:" + id, CLE_KEY = "ndf:cle";
+
+/* ================= Stockage (artefact / navigateur / mémoire) ================= */
+const memoire = new Map();
+const store = {
+  async get(k){
+    if (window.storage) { const r = await window.storage.get(k); return r ? r.value : null; }
+    try { return localStorage.getItem(k); } catch(e){ return memoire.get(k) ?? null; }
+  },
+  async set(k,v){
+    if (window.storage) { await window.storage.set(k,v); return; }
+    try { localStorage.setItem(k,v); } catch(e){ memoire.set(k,v); }
+  },
+  async del(k){
+    if (window.storage) { try{ await window.storage.delete(k);}catch(e){} return; }
+    try { localStorage.removeItem(k); } catch(e){ memoire.delete(k); }
+  }
+};
+
+/* ================= Utilitaires ================= */
+const chf = n => (typeof n === "number" && isFinite(n))
+  ? n.toLocaleString("fr-CH",{minimumFractionDigits:2,maximumFractionDigits:2}) : "—";
+const moisLabel = ym => { if(!ym) return "—"; const [a,m]=ym.split("-"); return MOIS[+m-1]+" "+a; };
+const moisCourant = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); };
+const ymDepuisDate = s => { const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(s||""); return m ? m[3]+"-"+m[2] : null; };
+const esc = s => String(s==null?"":s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function redimensionner(dataUrl,maxDim,q){
+  return new Promise((res,rej)=>{
+    const i=new Image();
+    i.onload=()=>{ const r=Math.min(1,maxDim/Math.max(i.width,i.height));
+      const c=document.createElement("canvas"); c.width=Math.round(i.width*r); c.height=Math.round(i.height*r);
+      const x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,c.width,c.height);
+      x.drawImage(i,0,0,c.width,c.height); res(c.toDataURL("image/jpeg",q)); };
+    i.onerror=()=>rej(new Error("Image illisible")); i.src=dataUrl;
+  });
+}
+const dimensionsImage = src => new Promise(res=>{ const i=new Image();
+  i.onload=()=>res({w:i.width,h:i.height}); i.onerror=()=>res(null); i.src=src; });
+
+function chargerJsPDF(){
+  return new Promise((res,rej)=>{
+    if (window.jspdf && window.jspdf.jsPDF) return res(window.jspdf.jsPDF);
+    const s=document.createElement("script");
+    s.src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+    s.onload=()=> (window.jspdf&&window.jspdf.jsPDF) ? res(window.jspdf.jsPDF) : rej(new Error("bibliothèque PDF indisponible"));
+    s.onerror=()=>rej(new Error("bibliothèque PDF inaccessible"));
+    document.head.appendChild(s);
+  });
+}
+
+/* ================= Analyse du ticket ================= */
+const PROMPT = `Tu analyses la photo d'un justificatif de frais (ticket de caisse, quittance, facture) pour un bureau d'ingénierie civile en Suisse romande.
+
+Règles impératives :
+- N'invente AUCUNE donnée. Tout champ non lisible ou absent du ticket = null.
+- Ne déduis pas un montant à partir d'un autre, ne recalcule rien.
+- Reproduis les valeurs telles qu'elles figurent sur le ticket.
+- Liste dans "champs_incertains" le nom de chaque champ deviné, partiellement lisible ou ambigu.
+
+Imputation : propose un compte parmi cette liste fermée, uniquement si la nature de la dépense
+ressort clairement du ticket. Sinon "compte" = null et ajoute "compte" aux champs incertains.
+N'invente jamais un numéro hors de cette liste.
+` + RUBRIQUES.map(r=>r.code+" — "+r.libelle+" ("+r.aide+")").join("\n") + `
+
+Réponds UNIQUEMENT par un objet JSON, sans texte ni balises Markdown :
+{"commercant":string|null,"lieu":string|null,"date":string|null,"montant_ttc":number|null,
+"devise":string|null,"tva_montant":number|null,"tva_taux":string|null,"compte":string|null,
+"motif_compte":string|null,"moyen_paiement":string|null,"champs_incertains":string[],
+"lisibilite":"bonne"|"moyenne"|"faible"}
+La date doit être au format jj.mm.aaaa.`;
+
+async function analyserTicket(dataUrl){
+  const cle = await store.get(CLE_KEY);
+  const entetes = {"Content-Type":"application/json"};
+  if (cle) { entetes["x-api-key"]=cle; entetes["anthropic-version"]="2023-06-01";
+             entetes["anthropic-dangerous-direct-browser-access"]="true"; }
+  const res = await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST", headers:entetes,
+    body: JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:1000, messages:[{role:"user",content:[
+      {type:"image",source:{type:"base64",media_type:"image/jpeg",data:dataUrl.split(",")[1]}},
+      {type:"text",text:PROMPT}]}]})
+  });
+  if(!res.ok){
+    if(res.status===401||res.status===403) throw new Error("accès refusé (clé d'API manquante ou invalide)");
+    throw new Error("le service d'analyse a répondu " + res.status);
+  }
+  const d = await res.json();
+  const t = (d.content||[]).map(b=>b.type==="text"?b.text:"").join("").replace(/```json|```/g,"").trim();
+  return JSON.parse(t);
+}
+
+/* ================= État ================= */
+let entries = [], mois = moisCourant(), draft = null;
+
+async function init(){
+  const brut = await store.get(IDX_KEY);
+  if (brut) { try { entries = JSON.parse(brut); } catch(e){ entries = []; } }
+  rendre();
+}
+async function persister(){ try { await store.set(IDX_KEY, JSON.stringify(entries)); }
+  catch(e){ message("Enregistrement impossible sur cet appareil."); } }
+
+function message(t){ msg.textContent = t; banniere.hidden = false; }
+function fermerMsg(){ banniere.hidden = true; }
+function setMois(m){ mois = m; rendre(); }
+function vue(n){ vueListe.hidden = n!=="liste"; vueAnalyse.hidden = n!=="analyse"; vueFiche.hidden = n!=="fiche"; }
+
+async function reglages(){
+  const actuelle = await store.get(CLE_KEY);
+  const v = prompt(
+    "Clé d'API Anthropic (nécessaire uniquement hors environnement Claude).\n" +
+    "Elle est conservée sur cet appareil. Laisser vide pour la supprimer.", actuelle || "");
+  if (v === null) return;
+  if (v.trim() === "") { await store.del(CLE_KEY); message("Clé d'API supprimée."); }
+  else { await store.set(CLE_KEY, v.trim()); message("Clé d'API enregistrée sur cet appareil."); }
+}
+
+/* ================= Capture ================= */
+fichier.addEventListener("change", async ev => {
+  const f = ev.target.files && ev.target.files[0]; ev.target.value = "";
+  if (!f) return;
+  fermerMsg(); vue("analyse");
+  try{
+    const brut = await new Promise((res,rej)=>{ const r=new FileReader();
+      r.onload=()=>res(r.result); r.onerror=()=>rej(new Error("fichier illisible")); r.readAsDataURL(f); });
+    const pour = await redimensionner(brut,1400,.8);
+    const vignette = await redimensionner(brut,700,.6);
+    const d = await analyserTicket(pour);
+    const ym = ymDepuisDate(d.date);
+    const compte = rub(d.compte) ? d.compte : "";
+    const inc = Array.isArray(d.champs_incertains) ? d.champs_incertains.slice() : [];
+    if (!compte && !inc.some(c=>c.toLowerCase().includes("compte"))) inc.push("compte");
+    draft = { id:"t"+Date.now(), vignette,
+      commercant:d.commercant||"", lieu:d.lieu||"", date:d.date||"",
+      montant:d.montant_ttc!=null?String(d.montant_ttc):"", devise:d.devise||"CHF",
+      tva:d.tva_montant!=null?String(d.tva_montant):"", tvaTaux:d.tva_taux||"",
+      compte, comptePropose:compte, motifCompte:d.motif_compte||"",
+      paiement:d.moyen_paiement||"", mois:ym||moisCourant(), moisPropose:ym,
+      incertains:inc, lisibilite:d.lisibilite||null, remarque:"" };
+    rendreFiche();
+  } catch(e){
+    message("Analyse interrompue : " + e.message + ". Reprenez la photo ou saisissez le ticket sans photo.");
+    vue("liste");
+  }
+});
+
+function saisieManuelle(){
+  draft = { id:"t"+Date.now(), vignette:null, commercant:"", lieu:"", date:"", montant:"",
+    devise:"CHF", tva:"", tvaTaux:"", compte:"", comptePropose:"", motifCompte:"",
+    paiement:"", mois:moisCourant(), moisPropose:null, incertains:[], lisibilite:null, remarque:"" };
+  rendreFiche();
+}
+
+/* ================= Fiche ================= */
+function rendreFiche(){
+  const d = draft, inc = n => d.incertains.some(c=>c.toLowerCase().includes(n));
+  const cl = n => inc(n) ? "alerte" : "";
+  const av = n => inc(n) ? '<span class="av">⚠ à vérifier</span>' : "";
+  const moisDispo = Array.from(new Set([d.mois, moisCourant(), ...entries.map(e=>e.mois)])).filter(Boolean).sort().reverse();
+
+  vueFiche.innerHTML = `
+  <div class="fiche">
+    <div>
+      ${d.vignette ? '<img src="'+d.vignette+'" alt="Ticket photographié">' : '<div class="carte sec">Saisie sans photo : aucun justificatif ne sera joint au PDF.</div>'}
+      ${d.lisibilite && d.lisibilite!=="bonne" ? '<p class="flag">Lisibilité '+esc(d.lisibilite)+' : contrôlez chaque champ.</p>' : ''}
+    </div>
+    <div>
+      <div class="carte">
+        <p class="eyebrow">Imputation proposée</p>
+        <p class="val">${d.comptePropose ? esc(rubLabel(d.comptePropose)) : "Aucune proposition"}</p>
+        <p class="sec">${d.comptePropose
+          ? esc(d.motifCompte || "Déduite de la nature de la dépense lue sur le ticket.")
+          : "La nature de la dépense ne ressort pas clairement du ticket : compte à choisir."}</p>
+        <select id="f_compte" class="${d.compte?"":"alerte"}" style="margin-top:8px">
+          <option value="">À choisir</option>
+          ${RUBRIQUES.map(r=>'<option value="'+r.code+'"'+(r.code===d.compte?" selected":"")+'>'+r.code+" · "+esc(r.libelle)+'</option>').join("")}
+        </select>
+      </div>
+
+      <div class="carte" style="margin-top:16px">
+        <p class="eyebrow">Mois d'imputation proposé</p>
+        <p class="val">${esc(moisLabel(d.mois))}</p>
+        <p class="sec">${d.moisPropose
+          ? "Déduit de la date du ticket (" + esc(d.date) + ")." + (d.moisPropose!==moisCourant() ? " Ce ticket est antérieur au mois en cours." : "")
+          : "Date du ticket non lisible : mois en cours proposé par défaut, à confirmer."}</p>
+        <select id="f_mois" style="margin-top:8px">
+          ${moisDispo.map(m=>'<option value="'+m+'"'+(m===d.mois?" selected":"")+'>'+esc(moisLabel(m))+'</option>').join("")}
+        </select>
+      </div>
+
+      <div class="grille">
+        <label><span>Commerçant ${av("commer")}</span>
+          <input id="f_commercant" type="text" class="${cl("commer")}" value="${esc(d.commercant)}" placeholder="Non lu"></label>
+        <label><span>Lieu ${av("lieu")}</span>
+          <input id="f_lieu" type="text" class="${cl("lieu")}" value="${esc(d.lieu)}" placeholder="Non lu"></label>
+        <label><span>Date (jj.mm.aaaa) ${av("date")}</span>
+          <input id="f_date" type="text" class="mono ${cl("date")}" value="${esc(d.date)}" placeholder="Non lue"></label>
+        <label><span>Moyen de paiement</span>
+          <input id="f_paiement" type="text" value="${esc(d.paiement)}" placeholder="Non lu"></label>
+        <label><span>Montant TTC ${av("montant")}</span>
+          <span class="duo"><input id="f_montant" type="text" inputmode="decimal" class="mono ${cl("montant")}" value="${esc(d.montant)}" placeholder="Non lu">
+          <input id="f_devise" type="text" class="mono court" value="${esc(d.devise)}"></span></label>
+        <label><span>TVA (montant / taux) ${av("tva")}</span>
+          <span class="duo"><input id="f_tva" type="text" inputmode="decimal" class="mono ${cl("tva")}" value="${esc(d.tva)}" placeholder="Non lue">
+          <input id="f_tvaTaux" type="text" class="mono court" value="${esc(d.tvaTaux)}" placeholder="—"></span></label>
+        <label style="grid-column:1/-1"><span>Remarque (motif, projet, n° mandat)</span>
+          <input id="f_remarque" type="text" value="${esc(d.remarque)}" placeholder="Facultatif"></label>
+      </div>
+
+      ${d.incertains.length ? '<p class="banniere" style="margin-top:16px">Champs non établis avec certitude : '+esc(d.incertains.join(", "))+'. Complétez-les avant d\'enregistrer.</p>' : ''}
+
+      <div class="actions">
+        <button class="principal" onclick="enregistrer()">Enregistrer le ticket</button>
+        <button onclick="draft=null;vue('liste')">Abandonner</button>
+      </div>
+    </div>
+  </div>`;
+  vue("fiche");
+}
+
+const nb = v => v.trim()==="" ? null : parseFloat(v.replace(",","."));
+
+async function enregistrer(){
+  const d = draft;
+  const compte = f_compte.value;
+  const e = {
+    id:d.id, commercant:f_commercant.value.trim(), lieu:f_lieu.value.trim(), date:f_date.value.trim(),
+    montant:nb(f_montant.value), devise:f_devise.value.trim()||"CHF",
+    tva:nb(f_tva.value), tvaTaux:f_tvaTaux.value.trim(),
+    compte, comptePropose:d.comptePropose, motifCompte:d.motifCompte,
+    compteModifie: d.comptePropose!=="" && compte!==d.comptePropose,
+    paiement:f_paiement.value.trim(), mois:f_mois.value, moisPropose:d.moisPropose,
+    incertains: compte ? d.incertains.filter(c=>!c.toLowerCase().includes("compte")) : d.incertains,
+    remarque:f_remarque.value.trim(), avecPhoto: !!d.vignette, saisiLe:new Date().toISOString()
+  };
+  if (d.vignette) { try { await store.set(IMG_KEY(e.id), d.vignette); }
+    catch(err){ e.avecPhoto=false; message("La photo n'a pas pu être conservée ; les données sont enregistrées."); } }
+  entries.unshift(e); await persister();
+  mois = e.mois; draft = null; rendre(); vue("liste");
+}
+
+async function supprimer(id){
+  if (!confirm("Supprimer définitivement ce ticket et sa photo ?")) return;
+  entries = entries.filter(e=>e.id!==id); await persister(); await store.del(IMG_KEY(id)); rendre();
+}
+async function voirPhoto(id){
+  const v = await store.get(IMG_KEY(id));
+  if (!v) { message("Photo introuvable pour ce ticket."); return; }
+  imgPhoto.src = v; dlgPhoto.showModal();
+}
+
+/* ================= Dérivés ================= */
+const duMois = () => entries.filter(e=>e.mois===mois);
+const somme = (l,f) => l.reduce((s,e)=>s+(f(e)||0),0);
+function repartition(l){
+  const m = new Map();
+  l.forEach(e=>{ const k=e.compte||""; const c=m.get(k)||{nb:0,montant:0}; c.nb++; c.montant+=e.montant||0; m.set(k,c); });
+  return [...m.entries()].sort((a,b)=>(a[0]||"9999").localeCompare(b[0]||"9999"));
+}
+const alertes = e => {
+  const a = []; if (!e.compte) a.push("compte à déterminer");
+  (e.incertains||[]).forEach(c=>a.push(c)); if (e.montant==null) a.push("montant manquant"); return a;
+};
+
+/* Catégorise le taux de TVA d'un ticket : "81", "26", "autre" (taux illisible ou différent),
+   ou null si le montant de TVA lui-même n'est pas connu (on ne suppose jamais 0). */
+function categorieTaux(e){
+  if (e.tva == null) return null;
+  const t = (e.tvaTaux||"").replace(",", ".");
+  if (/8[.,]?1/.test(t)) return "81";
+  if (/2[.,]?6/.test(t)) return "26";
+  return "autre";
+}
+
+/* Récapitulation par compte : HT, TVA 8.1%, TVA 2.6%, TTC.
+   HT n'est calculé que si montant ET TVA sont tous deux connus pour le ticket (jamais supposé). */
+function recapImputation(l){
+  const m = new Map();
+  let tauxNonVentile = 0, htInconnu = 0;
+  l.forEach(e=>{
+    const k = e.compte || "";
+    const c = m.get(k) || { nb:0, ttc:0, ht:0, htConnu:0, tva81:0, tva26:0 };
+    c.nb++;
+    c.ttc += e.montant || 0;
+    if (e.montant!=null && e.tva!=null){ c.ht += (e.montant - e.tva); c.htConnu++; }
+    else if (e.montant!=null) htInconnu++;
+    const cat = categorieTaux(e);
+    if (cat==="81") c.tva81 += e.tva;
+    else if (cat==="26") c.tva26 += e.tva;
+    else if (cat==="autre") tauxNonVentile++;
+    m.set(k,c);
+  });
+  return { lignes:[...m.entries()].sort((a,b)=>(a[0]||"9999").localeCompare(b[0]||"9999")),
+           tauxNonVentile, htInconnu };
+}
+
+/* ================= Rendu du registre ================= */
+function rendre(){
+  const l = duMois(), total = somme(l,e=>e.montant), tva = somme(l,e=>e.tva);
+  const devises = [...new Set(l.map(e=>e.devise).filter(Boolean))];
+  const aVerifier = l.filter(e=>alertes(e).length).length;
+  const moisDispo = Array.from(new Set([...entries.map(e=>e.mois), moisCourant(), mois])).filter(Boolean).sort().reverse();
+
+  lblMois.textContent = "Total " + moisLabel(mois);
+  totalHaut.innerHTML = chf(total) + ' <span class="sec" style="font-size:15px">' + (devises.length>1?"mixte":(devises[0]||"CHF")) + '</span>';
+  selMois.innerHTML = moisDispo.map(m=>'<option value="'+m+'"'+(m===mois?" selected":"")+'>'+esc(moisLabel(m))+'</option>').join("");
+  btnPdf.disabled = btnCsv.disabled = l.length===0;
+
+  synthese.innerHTML = [["Tickets",l.length],["Total TTC",chf(total)],["Dont TVA",chf(tva)],["À vérifier",aVerifier]]
+    .map(([k,v])=>'<div><p class="eyebrow" style="margin:0">'+k+'</p><p class="v" style="margin:2px 0 0">'+v+'</p></div>').join("");
+
+  noteDevises.hidden = devises.length<2;
+  if (devises.length>1) noteDevises.textContent =
+    "Plusieurs devises dans ce mois (" + devises.join(", ") + ") : le total est une somme brute, sans conversion.";
+
+  const recap = recapImputation(l);
+  blocComptes.hidden = l.length===0;
+  tbComptes.innerHTML = recap.lignes.map(([c,v])=>'<tr><td>'+(c
+      ? '<span class="mono">'+c+'</span> <span class="sec">· '+esc(rub(c).libelle)+'</span>'
+      : '<span style="color:var(--alerte)">Sans imputation</span>')
+    +'</td><td class="droite mono">'+(v.htConnu===v.nb?chf(v.ht):chf(v.ht)+' *')+'</td>'
+    +'<td class="droite mono sec">'+chf(v.tva81)+'</td>'
+    +'<td class="droite mono sec">'+chf(v.tva26)+'</td>'
+    +'<td class="droite mono">'+chf(v.ttc)+'</td></tr>').join("");
+  tfComptes.innerHTML = recap.lignes.length ? '<tr><td class="eyebrow">Total</td>'
+    + '<td class="droite mono">'+chf(somme(recap.lignes.map(x=>x[1]),v=>v.ht))+'</td>'
+    + '<td class="droite mono">'+chf(somme(recap.lignes.map(x=>x[1]),v=>v.tva81))+'</td>'
+    + '<td class="droite mono">'+chf(somme(recap.lignes.map(x=>x[1]),v=>v.tva26))+'</td>'
+    + '<td class="droite mono">'+chf(total)+'</td></tr>' : "";
+  const notes = [];
+  if (recap.htInconnu) notes.push("* HT non calculé pour "+recap.htInconnu+" ticket(s) dont la TVA n'est pas connue (jamais supposée à 0)");
+  if (recap.tauxNonVentile) notes.push(recap.tauxNonVentile+" ticket(s) portent une TVA à un taux différent de 8.1% et 2.6%, ou non identifié — voir la liste des tickets");
+  noteRecap.hidden = notes.length===0; noteRecap.textContent = notes.join(" · ");
+
+  tbDetail.innerHTML = l.length ? l.map(e=>{
+    const a = alertes(e);
+    return '<tr>'
+      + '<td class="mono" style="white-space:nowrap">'+esc(e.date||"—")+'</td>'
+      + '<td>'+(e.commercant?esc(e.commercant):'<span class="sec">Non renseigné</span>')
+        + (e.lieu?' <span class="sec">· '+esc(e.lieu)+'</span>':'')
+        + (e.remarque?'<div class="sec">'+esc(e.remarque)+'</div>':'')
+        + (a.length?'<div class="flag">⚠ '+esc(a.join(", "))+'</div>':'') + '</td>'
+      + '<td>'+(e.compte
+        ? '<span class="mono">'+e.compte+'</span><div class="sec">'+esc(rub(e.compte).libelle)+(e.compteModifie?" · corrigé":"")+'</div>'
+        : '<span style="color:var(--alerte)">à imputer</span>')+'</td>'
+      + '<td class="droite mono" style="white-space:nowrap">'+chf(e.montant)+' <span class="sec">'+esc(e.devise)+'</span></td>'
+      + '<td class="droite mono sec">'+chf(e.tva)+'</td>'
+      + '<td class="droite" style="white-space:nowrap">'
+        + (e.avecPhoto!==false?'<button class="icone" title="Voir la photo" onclick="voirPhoto(\''+e.id+'\')">▣</button>':'')
+        + '<button class="icone" title="Supprimer" onclick="supprimer(\''+e.id+'\')">✕</button></td>'
+      + '</tr>';
+  }).join("") : '<tr><td colspan="6" class="vide">Aucun ticket pour '+esc(moisLabel(mois))+'. Photographiez le premier justificatif.</td></tr>';
+
+  tfDetail.innerHTML = l.length ? '<tr><td colspan="3" class="eyebrow">Total '+esc(moisLabel(mois))+'</td>'
+    + '<td class="droite">'+chf(total)+'</td><td class="droite sec">'+chf(tva)+'</td><td></td></tr>' : "";
+}
+
+/* ================= Export CSV ================= */
+function exporterCSV(){
+  const l = duMois();
+  const recap = recapImputation(l);
+  const total = somme(l,e=>e.montant);
+
+  const lignes = [
+    ["Notes de frais — "+moisLabel(mois)],
+    [],
+    ["Récapitulation par compte"],
+    ["N° imputation","Libellé","Montant HT","TVA 8.1%","TVA 2.6%","Montant TTC"],
+  ];
+  recap.lignes.forEach(([c,v])=>lignes.push([
+    c||"", c?rub(c).libelle:"Sans imputation",
+    v.htConnu===v.nb ? v.ht.toFixed(2) : v.ht.toFixed(2)+" (partiel)",
+    v.tva81.toFixed(2), v.tva26.toFixed(2), v.ttc.toFixed(2)
+  ]));
+  lignes.push(["Total","",
+    somme(recap.lignes.map(x=>x[1]),v=>v.ht).toFixed(2),
+    somme(recap.lignes.map(x=>x[1]),v=>v.tva81).toFixed(2),
+    somme(recap.lignes.map(x=>x[1]),v=>v.tva26).toFixed(2),
+    total.toFixed(2)]);
+  if (recap.htInconnu) lignes.push(["HT non calculé pour "+recap.htInconnu+" ticket(s) dont la TVA n'est pas connue (jamais supposée à 0)."]);
+  if (recap.tauxNonVentile) lignes.push([recap.tauxNonVentile+" ticket(s) portent une TVA à un taux différent de 8.1% et 2.6%, ou non identifié ; voir la liste ci-dessous."]);
+
+  lignes.push([]);
+  lignes.push(["Liste des tickets consolidés"]);
+  lignes.push(["Date","Commerçant","Lieu","Compte","Libellé du compte","Motif de l'imputation",
+    "Imputation corrigée","Devise","Montant TTC","TVA","Taux TVA","Paiement","Mois d'imputation",
+    "Remarque","Champs à vérifier"]);
+  l.forEach(e=>lignes.push([e.date,e.commercant,e.lieu,e.compte||"",
+    e.compte?rub(e.compte).libelle:"", e.motifCompte||"", e.compteModifie?"oui":"", e.devise,
+    e.montant!=null?e.montant.toFixed(2):"", e.tva!=null?e.tva.toFixed(2):"", e.tvaTaux,
+    e.paiement, moisLabel(e.mois), e.remarque, (e.incertains||[]).join(" / ")]));
+
+  const csv = "\uFEFF" + lignes.map(r=>r.map(c=>'"'+String(c==null?"":c).replace(/"/g,'""')+'"').join(";")).join("\r\n");
+  const u = URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  const a = document.createElement("a"); a.href=u; a.download="notes-de-frais_"+mois+".csv"; a.click();
+  URL.revokeObjectURL(u);
+}
+
+const multiDeviseTexte = devises => devises.length>1
+  ? "Plusieurs devises dans ce mois (" + devises.join(", ") + ") : les totaux sont une somme brute, sans conversion."
+  : "";
+
+/* ================= Export PDF ================= */
+async function exporterPDF(){
+  const l = duMois(); if (!l.length) return;
+  fermerMsg(); btnPdf.disabled = true; btnPdf.textContent = "Assemblage du PDF…";
+  try{
+    const JsPDF = await chargerJsPDF();
+    const doc = new JsPDF({unit:"mm",format:"a4"});
+    const M=15, L=210, BAS=280;
+    const total = somme(l,e=>e.montant), tvaT = somme(l,e=>e.tva);
+    const devises = [...new Set(l.map(e=>e.devise).filter(Boolean))];
+    const aVerifier = l.filter(e=>alertes(e).length).length;
+
+    const enTete = st => {
+      doc.setFont("helvetica","bold"); doc.setFontSize(13); doc.text("Notes de frais",M,18);
+      doc.setFont("helvetica","normal"); doc.setFontSize(9);
+      doc.text("Mois d'imputation : "+moisLabel(mois),M,24);
+      doc.text("Édité le "+new Date().toLocaleDateString("fr-CH"),L-M,24,{align:"right"});
+      if (st) doc.text(st,M,29);
+      doc.setLineWidth(.4); doc.line(M,32,L-M,32);
+    };
+
+    const recap = recapImputation(l);
+
+    /* --- 1. Récapitulation par compte : N° imputation / HT / TVA 8.1% / TVA 2.6% / TTC --- */
+    enTete("Récapitulation par compte");
+    let y = 40;
+    const enteteRecap = () => {
+      doc.setFont("helvetica","bold"); doc.setFontSize(8);
+      doc.text("N° IMPUTATION",M,y); doc.text("HT",M+95,y,{align:"right"});
+      doc.text("TVA 8.1%",M+125,y,{align:"right"}); doc.text("TVA 2.6%",M+155,y,{align:"right"});
+      doc.text("TTC",L-M,y,{align:"right"});
+      doc.setLineWidth(.2); doc.line(M,y+1.5,L-M,y+1.5); y+=6;
+      doc.setFont("helvetica","normal"); doc.setFontSize(9);
+    };
+    enteteRecap();
+    recap.lignes.forEach(([c,v])=>{
+      if (y > BAS-15){ doc.addPage(); enTete("Récapitulation par compte (suite)"); y=40; enteteRecap(); }
+      doc.text(doc.splitTextToSize(c?rubLabel(c):"Sans imputation",78)[0],M,y);
+      doc.text(v.htConnu===v.nb ? chf(v.ht) : chf(v.ht)+" *",M+95,y,{align:"right"});
+      doc.text(chf(v.tva81),M+125,y,{align:"right"});
+      doc.text(chf(v.tva26),M+155,y,{align:"right"});
+      doc.text(chf(v.ttc),L-M,y,{align:"right"});
+      y+=5;
+    });
+    doc.setLineWidth(.4); doc.line(M,y,L-M,y); y+=5;
+    doc.setFont("helvetica","bold");
+    doc.text("Total",M,y);
+    doc.text(chf(somme(recap.lignes.map(x=>x[1]),v=>v.ht)),M+95,y,{align:"right"});
+    doc.text(chf(somme(recap.lignes.map(x=>x[1]),v=>v.tva81)),M+125,y,{align:"right"});
+    doc.text(chf(somme(recap.lignes.map(x=>x[1]),v=>v.tva26)),M+155,y,{align:"right"});
+    doc.text(chf(total)+(devises.length>1?" (mixte)":""),L-M,y,{align:"right"});
+    y += 8;
+    doc.setFont("helvetica","normal"); doc.setFontSize(7);
+    if (recap.htInconnu) { doc.text("* HT non calculé pour "+recap.htInconnu+" ticket(s) dont la TVA n'est pas connue (jamais supposée à 0).",M,y); y+=4; }
+    if (recap.tauxNonVentile) { doc.text(recap.tauxNonVentile+" ticket(s) portent une TVA à un taux différent de 8.1% et 2.6%, ou non identifié ; voir la liste ci-après.",M,y); y+=4; }
+    if (multiDeviseTexte(devises)) { doc.text(multiDeviseTexte(devises),M,y); y+=4; }
+    if (aVerifier) doc.text(aVerifier+" justificatif(s) comportent des champs à contrôler.",M,y);
+
+    /* --- 2. Liste des tickets consolidés --- */
+    doc.addPage(); enTete(l.length+" justificatif(s)");
+    y = 40;
+    doc.setFont("helvetica","bold"); doc.setFontSize(10);
+    doc.text("Liste des tickets consolidés",M,y); y+=7;
+    const entete = () => {
+      doc.setFont("helvetica","bold"); doc.setFontSize(8);
+      doc.text("DATE",M,y); doc.text("COMMERÇANT",M+22,y); doc.text("COMPTE",M+78,y);
+      doc.text("MONTANT",L-M-25,y,{align:"right"}); doc.text("TVA",L-M,y,{align:"right"});
+      doc.setLineWidth(.2); doc.line(M,y+1.5,L-M,y+1.5); y+=6;
+      doc.setFont("helvetica","normal"); doc.setFontSize(9);
+    };
+    entete();
+    l.forEach(e=>{
+      if (y > BAS-20){ doc.addPage(); enTete("Liste des tickets consolidés (suite)"); y=40; entete(); }
+      doc.text(e.date||"—",M,y);
+      doc.text(doc.splitTextToSize(e.commercant||"Non renseigné",54)[0],M+22,y);
+      doc.text(doc.splitTextToSize(e.compte?rubLabel(e.compte):"à imputer",42)[0],M+78,y);
+      doc.text((chf(e.montant)+" "+(e.devise||"")).trim(),L-M-25,y,{align:"right"});
+      doc.text(chf(e.tva)+(e.tvaTaux?" ("+e.tvaTaux+")":""),L-M,y,{align:"right"});
+      y+=5;
+      const a = alertes(e); if (e.compteModifie) a.push("imputation corrigée à la saisie");
+      if (a.length){ doc.setFontSize(7); doc.text("À vérifier : "+a.join(", "),M+22,y); doc.setFontSize(9); y+=4; }
+      if (e.remarque){ doc.setFontSize(7); doc.text(doc.splitTextToSize(e.remarque,120)[0],M+22,y); doc.setFontSize(9); y+=4; }
+      doc.setDrawColor(200); doc.setLineWidth(.1); doc.line(M,y-2,L-M,y-2); doc.setDrawColor(0); y+=1;
+    });
+    doc.setLineWidth(.4); doc.line(M,y,L-M,y); y+=5;
+    doc.setFont("helvetica","bold");
+    doc.text("Total "+moisLabel(mois),M,y);
+    doc.text(chf(total)+" "+(devises.length>1?"(devises mixtes, sans conversion)":(devises[0]||"CHF")),L-M-25,y,{align:"right"});
+    doc.text(chf(tvaT),L-M,y,{align:"right"}); y+=8;
+    doc.setFont("helvetica","normal"); doc.setFontSize(7);
+    doc.text("Données reprises telles que lues sur les justificatifs, puis validées à la saisie. Aucun montant, aucune date ni aucun taux n'a été complété ou recalculé automatiquement.",M,y,{maxWidth:L-2*M});
+
+    for (let i=0;i<l.length;i++){
+      const e = l[i];
+      doc.addPage(); enTete("Justificatif "+(i+1)+" / "+l.length);
+      let yy = 40; doc.setFontSize(10);
+      const infos = [
+        ["Date", e.date||"non lue"],
+        ["Commerçant", [e.commercant||"non renseigné", e.lieu].filter(Boolean).join(" · ")],
+        ["Compte", e.compte?rubLabel(e.compte):"à déterminer"],
+        ["Motif de l'imputation", e.motifCompte||"—"],
+        ["Montant TTC", (chf(e.montant)+" "+(e.devise||"")).trim()],
+        ["TVA", (chf(e.tva)+" "+(e.tvaTaux||"")).trim()],
+        ["Paiement", e.paiement||"—"],
+        ["Mois d'imputation", moisLabel(e.mois)]
+      ];
+      if (e.compteModifie) infos.push(["Imputation","corrigée à la saisie"]);
+      if (e.remarque) infos.push(["Remarque", e.remarque]);
+      if ((e.incertains||[]).length) infos.push(["Champs à vérifier", e.incertains.join(", ")]);
+      infos.forEach(([k,v])=>{
+        doc.setFont("helvetica","bold"); doc.text(k+" :",M,yy);
+        doc.setFont("helvetica","normal"); doc.text(doc.splitTextToSize(String(v),130),M+45,yy); yy+=6;
+      });
+      yy += 4;
+      const img = e.avecPhoto===false ? null : await store.get(IMG_KEY(e.id));
+      if (img){
+        const d = await dimensionsImage(img);
+        if (d){ const s = Math.min((L-2*M)/d.w,(BAS-yy)/d.h); doc.addImage(img,"JPEG",M,yy,d.w*s,d.h*s); }
+        else doc.text("Photo du justificatif illisible.",M,yy);
+      } else doc.text("Aucune photo jointe à ce justificatif.",M,yy);
+    }
+    doc.save("notes-de-frais_"+mois+".pdf");
+  } catch(err){
+    message("PDF non généré (" + err.message + "). L'accès au réseau est peut-être bloqué ; l'export CSV reste disponible.");
+  }
+  btnPdf.disabled = false; btnPdf.textContent = "Extraire le PDF du mois";
+}
+
+init();
+</script>
+</body>
+</html>
