@@ -98,12 +98,20 @@
     <div class="barre">
       <button class="principal" onclick="fichier.click()">Photographier un ticket</button>
       <input id="fichier" type="file" accept="image/*" capture="environment" hidden>
+      <button onclick="fichierGalerie.click()">Importer depuis la photothèque</button>
+      <input id="fichierGalerie" type="file" accept="image/*" hidden>
       <button onclick="saisieManuelle()">Saisir sans photo</button>
       <select id="selMois" style="width:auto" onchange="setMois(this.value)"></select>
-      <button class="cadre" id="btnPdf" onclick="exporterPDF()">Extraire le PDF du mois</button>
-      <button id="btnCsv" onclick="exporterCSV()">Exporter en CSV</button>
+      <span class="sec" style="margin-left:6px">Mois du PDF :</span>
+      <select id="selMoisPdf" style="width:auto" onchange="btnPdf.disabled = entries.filter(e=>e.mois===this.value).length===0"></select>
+      <button class="cadre" id="btnPdf" onclick="exporterPDF()">Extraire le PDF</button>
       <button onclick="reglages()" title="Clé d'API">Réglages</button>
     </div>
+    <p class="note">
+      Sur iPhone, si « Photographier un ticket » n'ouvre pas l'appareil photo (limitation connue de
+      cet environnement), prenez la photo avec l'app Appareil photo, puis utilisez
+      « Importer depuis la photothèque ».
+    </p>
 
     <div class="synthese" id="synthese"></div>
     <p class="note" id="noteDevises" hidden></p>
@@ -293,9 +301,7 @@ async function reglages(){
 }
 
 /* ================= Capture ================= */
-fichier.addEventListener("change", async ev => {
-  const f = ev.target.files && ev.target.files[0]; ev.target.value = "";
-  if (!f) return;
+async function traiterFichier(f){
   fermerMsg(); vue("analyse");
   try{
     const brut = await new Promise((res,rej)=>{ const r=new FileReader();
@@ -316,9 +322,17 @@ fichier.addEventListener("change", async ev => {
       incertains:inc, lisibilite:d.lisibilite||null, remarque:"" };
     rendreFiche();
   } catch(e){
-    message("Analyse interrompue : " + e.message + ". Reprenez la photo ou saisissez le ticket sans photo.");
+    message("Analyse interrompue : " + e.message + ". Reprenez la photo, utilisez « Importer depuis la photothèque », ou saisissez le ticket sans photo.");
     vue("liste");
   }
+}
+fichier.addEventListener("change", ev => {
+  const f = ev.target.files && ev.target.files[0]; ev.target.value = "";
+  if (f) traiterFichier(f);
+});
+fichierGalerie.addEventListener("change", ev => {
+  const f = ev.target.files && ev.target.files[0]; ev.target.value = "";
+  if (f) traiterFichier(f);
 });
 
 function saisieManuelle(){
@@ -438,6 +452,9 @@ const alertes = e => {
   const a = []; if (!e.compte) a.push("compte à déterminer");
   (e.incertains||[]).forEach(c=>a.push(c)); if (e.montant==null) a.push("montant manquant"); return a;
 };
+const multiDeviseTexte = devises => devises.length>1
+  ? "Plusieurs devises dans ce mois (" + devises.join(", ") + ") : les totaux sont une somme brute, sans conversion."
+  : "";
 
 /* Catégorise le taux de TVA d'un ticket : "81", "26", "autre" (taux illisible ou différent),
    ou null si le montant de TVA lui-même n'est pas connu (on ne suppose jamais 0). */
@@ -481,7 +498,10 @@ function rendre(){
   lblMois.textContent = "Total " + moisLabel(mois);
   totalHaut.innerHTML = chf(total) + ' <span class="sec" style="font-size:15px">' + (devises.length>1?"mixte":(devises[0]||"CHF")) + '</span>';
   selMois.innerHTML = moisDispo.map(m=>'<option value="'+m+'"'+(m===mois?" selected":"")+'>'+esc(moisLabel(m))+'</option>').join("");
-  btnPdf.disabled = btnCsv.disabled = l.length===0;
+
+  const moisPdfActuel = selMoisPdf.value || mois;
+  selMoisPdf.innerHTML = moisDispo.map(m=>'<option value="'+m+'"'+(m===moisPdfActuel?" selected":"")+'>'+esc(moisLabel(m))+'</option>').join("");
+  btnPdf.disabled = entries.filter(e=>e.mois===selMoisPdf.value).length===0;
 
   synthese.innerHTML = [["Tickets",l.length],["Total TTC",chf(total)],["Dont TVA",chf(tva)],["À vérifier",aVerifier]]
     .map(([k,v])=>'<div><p class="eyebrow" style="margin:0">'+k+'</p><p class="v" style="margin:2px 0 0">'+v+'</p></div>').join("");
@@ -532,54 +552,10 @@ function rendre(){
     + '<td class="droite">'+chf(total)+'</td><td class="droite sec">'+chf(tva)+'</td><td></td></tr>' : "";
 }
 
-/* ================= Export CSV ================= */
-function exporterCSV(){
-  const l = duMois();
-  const recap = recapImputation(l);
-  const total = somme(l,e=>e.montant);
-
-  const lignes = [
-    ["Notes de frais — "+moisLabel(mois)],
-    [],
-    ["Récapitulation par compte"],
-    ["N° imputation","Libellé","Montant HT","TVA 8.1%","TVA 2.6%","Montant TTC"],
-  ];
-  recap.lignes.forEach(([c,v])=>lignes.push([
-    c||"", c?rub(c).libelle:"Sans imputation",
-    v.htConnu===v.nb ? v.ht.toFixed(2) : v.ht.toFixed(2)+" (partiel)",
-    v.tva81.toFixed(2), v.tva26.toFixed(2), v.ttc.toFixed(2)
-  ]));
-  lignes.push(["Total","",
-    somme(recap.lignes.map(x=>x[1]),v=>v.ht).toFixed(2),
-    somme(recap.lignes.map(x=>x[1]),v=>v.tva81).toFixed(2),
-    somme(recap.lignes.map(x=>x[1]),v=>v.tva26).toFixed(2),
-    total.toFixed(2)]);
-  if (recap.htInconnu) lignes.push(["HT non calculé pour "+recap.htInconnu+" ticket(s) dont la TVA n'est pas connue (jamais supposée à 0)."]);
-  if (recap.tauxNonVentile) lignes.push([recap.tauxNonVentile+" ticket(s) portent une TVA à un taux différent de 8.1% et 2.6%, ou non identifié ; voir la liste ci-dessous."]);
-
-  lignes.push([]);
-  lignes.push(["Liste des tickets consolidés"]);
-  lignes.push(["Date","Commerçant","Lieu","Compte","Libellé du compte","Motif de l'imputation",
-    "Imputation corrigée","Devise","Montant TTC","TVA","Taux TVA","Paiement","Mois d'imputation",
-    "Remarque","Champs à vérifier"]);
-  l.forEach(e=>lignes.push([e.date,e.commercant,e.lieu,e.compte||"",
-    e.compte?rub(e.compte).libelle:"", e.motifCompte||"", e.compteModifie?"oui":"", e.devise,
-    e.montant!=null?e.montant.toFixed(2):"", e.tva!=null?e.tva.toFixed(2):"", e.tvaTaux,
-    e.paiement, moisLabel(e.mois), e.remarque, (e.incertains||[]).join(" / ")]));
-
-  const csv = "\uFEFF" + lignes.map(r=>r.map(c=>'"'+String(c==null?"":c).replace(/"/g,'""')+'"').join(";")).join("\r\n");
-  const u = URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
-  const a = document.createElement("a"); a.href=u; a.download="notes-de-frais_"+mois+".csv"; a.click();
-  URL.revokeObjectURL(u);
-}
-
-const multiDeviseTexte = devises => devises.length>1
-  ? "Plusieurs devises dans ce mois (" + devises.join(", ") + ") : les totaux sont une somme brute, sans conversion."
-  : "";
-
 /* ================= Export PDF ================= */
 async function exporterPDF(){
-  const l = duMois(); if (!l.length) return;
+  const moisPdf = selMoisPdf.value || mois;
+  const l = entries.filter(e=>e.mois===moisPdf); if (!l.length) return;
   fermerMsg(); btnPdf.disabled = true; btnPdf.textContent = "Assemblage du PDF…";
   try{
     const JsPDF = await chargerJsPDF();
@@ -592,7 +568,7 @@ async function exporterPDF(){
     const enTete = st => {
       doc.setFont("helvetica","bold"); doc.setFontSize(13); doc.text("Notes de frais",M,18);
       doc.setFont("helvetica","normal"); doc.setFontSize(9);
-      doc.text("Mois d'imputation : "+moisLabel(mois),M,24);
+      doc.text("Mois d'imputation : "+moisLabel(moisPdf),M,24);
       doc.text("Édité le "+new Date().toLocaleDateString("fr-CH"),L-M,24,{align:"right"});
       if (st) doc.text(st,M,29);
       doc.setLineWidth(.4); doc.line(M,32,L-M,32);
@@ -663,7 +639,7 @@ async function exporterPDF(){
     });
     doc.setLineWidth(.4); doc.line(M,y,L-M,y); y+=5;
     doc.setFont("helvetica","bold");
-    doc.text("Total "+moisLabel(mois),M,y);
+    doc.text("Total "+moisLabel(moisPdf),M,y);
     doc.text(chf(total)+" "+(devises.length>1?"(devises mixtes, sans conversion)":(devises[0]||"CHF")),L-M-25,y,{align:"right"});
     doc.text(chf(tvaT),L-M,y,{align:"right"}); y+=8;
     doc.setFont("helvetica","normal"); doc.setFontSize(7);
@@ -698,11 +674,11 @@ async function exporterPDF(){
         else doc.text("Photo du justificatif illisible.",M,yy);
       } else doc.text("Aucune photo jointe à ce justificatif.",M,yy);
     }
-    doc.save("notes-de-frais_"+mois+".pdf");
+    doc.save("notes-de-frais_"+moisPdf+".pdf");
   } catch(err){
-    message("PDF non généré (" + err.message + "). L'accès au réseau est peut-être bloqué ; l'export CSV reste disponible.");
+    message("PDF non généré (" + err.message + "). L'accès au réseau est peut-être bloqué.");
   }
-  btnPdf.disabled = false; btnPdf.textContent = "Extraire le PDF du mois";
+  btnPdf.disabled = false; btnPdf.textContent = "Extraire le PDF";
 }
 
 init();
