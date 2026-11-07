@@ -1,0 +1,1118 @@
+<!doctype html>
+<html lang="fr-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gestion jardin Onex</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;700&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout : chapitres numérotés empilés — 1 saisie, 2 récapitulatif annuel, 3 journal, 4 fin de saison */
+:root{
+  --bg:#f2f5f0; --surface:#ffffff; --sunk:#e8ede5; --fg:#1b241d; --muted:#5d6a60; --line:#d6ddd2;
+  --garden:#3b6a33; --garden-soft:#e1ecdc; --pool:#1c6c88; --pool-soft:#dbecf2; --danger:#ac3c29;
+  --f-display:"Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --f-body:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r:6px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111612; --surface:#192019; --sunk:#141a15; --fg:#e4eae2; --muted:#98a59a; --line:#2b352d;
+    --garden:#8cbf7f; --garden-soft:#223322; --pool:#6dbfdc; --pool-soft:#173039; --danger:#e58a76;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111612; --surface:#192019; --sunk:#141a15; --fg:#e4eae2; --muted:#98a59a; --line:#2b352d;
+  --garden:#8cbf7f; --garden-soft:#223322; --pool:#6dbfdc; --pool-soft:#173039; --danger:#e58a76;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0}
+img{max-width:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:20px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:32px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(26px,4vw,34px);font-weight:700}
+h2{font-size:20px;font-weight:700;display:flex;align-items:baseline;gap:10px}
+h2 .no{font-family:var(--f-mono);font-size:13px;font-weight:500;color:var(--muted)}
+h3{font-size:15px;display:flex;align-items:center;gap:8px}
+.label{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 24px;border-bottom:1px solid var(--line);padding-bottom:14px}
+header p{margin:4px 0 0;color:var(--muted)}
+.today{font-family:var(--f-mono);color:var(--muted);font-size:13px}
+section{min-width:0;display:flex;flex-direction:column;gap:12px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.jardin{--c:var(--garden);--c-soft:var(--garden-soft)}
+.piscine{--c:var(--pool);--c-soft:var(--pool-soft)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--c);flex:none}
+/* Texte coloré par domaine : jardin vert, piscine bleu */
+.domain h3,.act .nm,tr.task td:first-child,tr.grp td,.entry .t .tn,.saison-card h3,.c-txt{color:var(--c)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+
+/* 1 · Saisie */
+form.card{padding:16px;display:flex;flex-direction:column;gap:16px}
+.date-row{display:flex;align-items:end;gap:16px;flex-wrap:wrap}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+input,select,textarea{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:8px 10px;width:100%;min-width:0}
+input[type=date]{width:auto;font-family:var(--f-mono)}
+textarea{resize:vertical;min-height:54px}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--pool);outline-offset:1px}
+.domains{display:grid;grid-template-columns:1fr;gap:20px}
+.domain{display:flex;flex-direction:column;gap:8px;min-width:0}
+.subs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 16px;align-items:start}
+.sub{display:flex;flex-direction:column;gap:6px;min-width:0}
+.sub .acts{grid-template-columns:1fr}
+.sub.wide{grid-column:1/-1}
+.sub.wide .acts{grid-template-columns:1fr}
+.sub.full{grid-column:1/-1}
+.sub.full .acts{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+.sub.chem .acts{grid-template-columns:1fr}
+@media (min-width:700px){#acts-jardin{grid-template-columns:repeat(2,minmax(0,1fr))}.sub.chem .acts,.sub.wide .acts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.sub h4{margin:0;font-family:var(--f-display);font-size:13px;font-weight:700;color:var(--c);text-transform:uppercase;letter-spacing:.07em;padding-bottom:4px;border-bottom:1px solid var(--line)}
+tr.subrow td{font-family:var(--f-body);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--c);padding-top:10px;padding-left:12px}
+tr.in-sub td:first-child{padding-left:24px}
+.acts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.act{border:1px solid var(--line);border-radius:var(--r);background:var(--bg);display:flex;flex-direction:column;transition:border-color .12s, background-color .12s}
+.act.on{border-color:var(--c);background:var(--c-soft)}
+.act label{display:grid;grid-template-columns:18px minmax(0,1fr);gap:4px 9px;padding:9px 10px;cursor:pointer;align-items:start}
+.act input[type=checkbox]{width:18px;height:18px;margin:1px 0 0;padding:0;accent-color:var(--c)}
+.act .nm{font-weight:700;line-height:1.25}
+.hint{font-family:var(--f-body);font-weight:400;font-size:11.5px;color:var(--pool);letter-spacing:0;text-transform:none}
+.act .nm .hint{display:block}
+.act .nm small{display:block;font-weight:400;font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.act .last{grid-column:2;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums;line-height:1.35}
+.act .mes{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;padding:0 10px 10px 37px}
+.act .mes label{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:var(--muted);cursor:default}
+.act .mes input{width:5.5em;flex:0 0 auto;padding:5px 8px;font-family:var(--f-mono);background:var(--surface)}
+.act .mes select{width:auto;padding:5px 6px;font-family:var(--f-mono);background:var(--surface)}
+.act .mes .mu{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+.act .io{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;padding:0 10px 8px 37px}
+.act .io .mes,.act .io .qty{padding:0;gap:5px;flex-wrap:nowrap}
+.act .io label{font-size:10.5px;min-width:0}
+.act .io input{width:4.6em;flex:none;padding:3px 6px;font-size:13px}
+.act .io select{padding:3px 4px;font-size:13px}
+.act .io .mu{font-size:12.5px}
+.act .last.lastm{color:var(--c)}
+.act.measured{border-color:var(--c)}
+.act .qty label{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:var(--muted);min-width:4.2em}
+.act .mes label,.act .qty label{flex:none;min-width:5.6em;white-space:nowrap}
+.act .sugg{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px;margin:-2px 10px 8px 37px;color:var(--muted);font-size:11.5px}
+.act .sugg b{font-family:var(--f-mono);color:var(--c)}
+.act .sugg .manual{color:var(--muted)}
+.act .qty{display:flex;align-items:center;gap:6px;padding:0 10px 10px 37px}
+.act .qty input{padding:5px 8px;font-family:var(--f-mono);background:var(--surface)}
+.act .qty select{width:auto;padding:5px 6px;font-family:var(--f-mono);background:var(--surface)}
+.act .qty input{flex:1 1 0}
+@media (prefers-reduced-motion:reduce){.act{transition:none}}
+.actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.btn{font:inherit;font-weight:700;border-radius:4px;padding:9px 18px;cursor:pointer;border:1px solid transparent;background:var(--fg);color:var(--bg)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.msg{font-size:13px;color:var(--muted)}
+.msg.err{color:var(--danger)}
+
+/* 2 · Récapitulatif */
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:8px 12px;text-align:right;border-top:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal;min-width:150px}
+thead th{border-top:0;font-family:var(--f-mono);font-weight:500;font-size:13px;color:var(--muted)}
+thead th.cur{color:var(--fg);font-weight:700}
+td{font-family:var(--f-mono);font-size:14px}
+td:first-child{font-family:var(--f-body)}
+td.cur,th.cur{background:var(--sunk)}
+td.zero{color:var(--muted)}
+tr.grp td{background:transparent;font-family:var(--f-display);font-weight:700;padding-top:14px}
+tr.grp td .in{display:flex;align-items:center;gap:8px}
+tr.tot td{font-weight:700;border-top:1px solid var(--muted)}
+tr.tot td:first-child{color:var(--muted);font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.06em}
+td small{color:var(--muted);font-size:12px}
+.note{font-size:12.5px;color:var(--muted);margin:0}
+
+/* 3 · Saisons / 4 · Journal */
+.pair{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:760px){.pair{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}}
+.saison-card{overflow:hidden}
+#p-saison .domain{display:flex;flex-direction:column;gap:8px}
+#p-saison .domain + .domain{margin-top:8px}
+.saison-card .s-head h3{font-size:14px}
+.saison-card ol.steps label{color:var(--c)}
+.saison-card ol.steps li.done label{color:var(--muted)}
+.saison-card .progress i{background:var(--c)}
+.saison-card ol.steps input[type=checkbox]{accent-color:var(--c)}
+.saison-card .s-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;background:var(--c-soft)}
+.add-step{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--line)}
+.add-step input{padding:6px 10px}
+.btn-sm{font:inherit;font-size:13px;font-weight:700;border-radius:4px;padding:6px 12px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg);white-space:nowrap}
+.rm{font:inherit;font-size:15px;line-height:1;border:0;background:none;color:var(--muted);cursor:pointer;padding:2px 6px;border-radius:3px}
+.rm:hover{color:var(--danger)}
+.rm.arm{background:var(--danger);color:var(--surface);font-size:12px}
+ol.steps li.steps-empty{display:block;padding:16px 14px;color:var(--muted);font-size:13.5px;counter-increment:none}
+ol.steps li.steps-empty::before{content:none}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:4px 12px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.month{padding:8px 14px;background:var(--sunk);border-top:1px solid var(--line);font-size:12px}
+.month:first-child{border-top:0;border-radius:var(--r) var(--r) 0 0}
+.entry{display:grid;grid-template-columns:86px minmax(0,1fr) auto;gap:4px 12px;padding:10px 14px;border-top:1px solid var(--line);align-items:start}
+.entry .d{font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums;padding-top:1px}
+.entry .t{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.tag{font-size:11px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--c);background:var(--c-soft);border-radius:3px;padding:1px 6px}
+.qtyv{font-family:var(--f-mono);font-size:13px}
+.entry .n{grid-column:2/3;color:var(--muted);font-size:13.5px;white-space:pre-wrap;overflow-wrap:anywhere}
+.del{font:inherit;font-size:12px;border:0;background:none;color:var(--muted);cursor:pointer;padding:2px 4px;border-radius:3px;white-space:nowrap}
+.del:hover{color:var(--danger)}
+.del.arm{color:var(--surface);background:var(--danger)}
+.empty{padding:28px 18px;text-align:center;color:var(--muted)}
+.empty strong{display:block;color:var(--fg);font-family:var(--f-display);font-size:16px;margin-bottom:4px}
+.yr{display:flex;align-items:center;gap:6px}
+.yr button{font:inherit;width:28px;height:28px;border-radius:4px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.yr span{font-family:var(--f-mono);font-weight:500;min-width:3.2em;text-align:center}
+.progress{height:4px;background:var(--line)}
+.progress i{display:block;height:100%;background:var(--pool);width:0;transition:width .25s}
+@media (prefers-reduced-motion:reduce){.progress i{transition:none}}
+ol.steps{list-style:none;margin:0;padding:0;counter-reset:s}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:22px 22px minmax(0,1fr) auto auto;align-items:center;gap:10px;padding:9px 14px;border-top:1px solid var(--line)}
+ol.steps li:first-child{border-top:0}
+ol.steps li::before{content:counter(s);font-family:var(--f-mono);font-size:12px;color:var(--muted);text-align:right}
+ol.steps input[type=checkbox]{width:18px;height:18px;accent-color:var(--pool);margin:0;padding:0}
+ol.steps label{cursor:pointer}
+ol.steps li.done label{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+ol.steps .when{font-family:var(--f-mono);font-size:12.5px;color:var(--muted)}
+ol.steps .params{grid-column:3/-1}
+.foot{font-size:12.5px;color:var(--muted);padding:10px 14px;border-top:1px solid var(--line)}
+.tabs{position:sticky;top:env(safe-area-inset-top, 0px);z-index:5;display:flex;gap:4px;overflow-x:auto;background:var(--bg);border-bottom:1px solid var(--line);padding-top:6px;margin-top:-16px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{font:inherit;font-family:var(--f-display);font-weight:700;font-size:14.5px;white-space:nowrap;background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);padding:8px 12px 9px;cursor:pointer;margin-bottom:-1px}
+.tabs button:hover{color:var(--fg)}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--fg)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top, 0px);z-index:10;background:var(--bg)}
+.proc{overflow:hidden;max-width:640px}
+.proc .s-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;background:var(--c-soft)}
+.proc .s-head h3{color:var(--c);font-size:15px}
+ol.proc-steps{list-style:none;margin:0;padding:0;counter-reset:p}
+ol.proc-steps li{counter-increment:p;position:relative;padding:10px 14px 10px 50px;border-top:1px solid var(--line)}
+ol.proc-steps li:first-child{border-top:0}
+ol.proc-steps li::before{content:counter(p);position:absolute;left:14px;width:24px;text-align:right;font-family:var(--f-mono);font-weight:500;color:var(--c)}
+ol.proc-steps b{color:var(--c)}
+ol.proc-steps .dur{display:inline-block;margin-left:6px;white-space:nowrap;font-family:var(--f-mono);font-size:12.5px;color:var(--c);background:var(--c-soft);border-radius:3px;padding:1px 6px}
+#p-pratiques .domain{display:flex;flex-direction:column}
+ul.proc-rules{list-style:none;margin:0;padding:0}
+ul.proc-rules li{padding:10px 14px 10px 50px;border-top:1px solid var(--line);position:relative}
+ul.proc-rules li:first-child{border-top:0}
+ul.proc-rules li::before{content:"";position:absolute;left:32px;top:1.05em;width:6px;height:6px;border-radius:50%;background:var(--c)}
+.pr-rm{position:absolute;right:8px;top:8px}
+ol.proc-steps li,ul.proc-rules li{padding-right:44px}
+ul.proc-rules b{color:var(--c);font-family:var(--f-mono);font-weight:500}
+.pr-dom{display:flex;flex-direction:column;gap:10px}
+.pr-list{display:flex;flex-direction:column;gap:12px}
+.proc .s-head .ch-actions{display:flex;align-items:center;gap:8px}
+.proc .add-step input.pd{flex:0 0 7.5em;width:7.5em}
+.new-ch{max-width:640px;overflow:hidden}
+.new-ch .s-head{display:flex;align-items:center;padding:10px 14px;background:var(--sunk)}
+.new-ch .s-head h3{font-size:15px}
+.nc-row{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px}
+.nc-row input{flex:1 1 12em;padding:6px 10px}
+.nc-row select{width:auto;padding:6px 8px}
+.proc-empty{padding:10px 14px;color:var(--muted);font-size:13.5px}
+.backup{max-width:640px;overflow:hidden;margin-top:12px}
+.backup .s-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;background:var(--sunk);border-bottom:1px solid var(--line)}
+.backup .s-head h3{font-size:15px}
+.imp{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:10px}
+.imp input[type=file]{padding:6px;font-size:13px}
+.imp-confirm{display:flex;flex-direction:column;gap:8px;align-items:flex-start;font-size:13.5px}
+.bk-remind{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;padding:10px 14px;border:1px solid var(--line);border-left:3px solid var(--pool);border-radius:var(--r);background:var(--surface);font-size:13.5px}
+.reset{max-width:640px;overflow:hidden;margin-top:12px}
+.reset .s-head{display:flex;align-items:center;padding:10px 14px;background:var(--sunk);border-bottom:1px solid var(--line)}
+.reset .s-head h3{font-size:15px;color:var(--danger)}
+.reset-body{display:flex;flex-direction:column;gap:10px;padding:12px 14px}
+.rk{display:grid;grid-template-columns:18px minmax(0,1fr);gap:8px;align-items:start;font-size:14px;cursor:pointer}
+.rk input{width:16px;height:16px;margin:2px 0 0;padding:0;accent-color:var(--danger)}
+.warn{margin:0;font-size:13px;color:var(--danger)}
+.reset-row{display:flex;gap:8px;flex-wrap:wrap}
+.reset-row input{flex:0 1 12em;padding:7px 10px;font-family:var(--f-mono)}
+.btn.danger{background:var(--danger);color:var(--surface)}
+.banner{border:1px solid var(--line);border-left:3px solid var(--danger);background:var(--surface);padding:10px 14px;border-radius:var(--r);font-size:13.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Gestion jardin Onex</h1>
+      <p>Saisie des interventions, récapitulatif annuel, début et fin de saison piscine, journal.</p>
+    </div>
+    <div class="today" id="today"></div>
+  </header>
+
+  <div class="banner" id="banner" hidden></div>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" id="t-saisie" data-tab="saisie" aria-controls="p-saisie" aria-selected="true">Saisie</button>
+    <button type="button" role="tab" id="t-saison" data-tab="saison" aria-controls="p-saison" aria-selected="false">Début / fin de saison</button>
+    <button type="button" role="tab" id="t-recap" data-tab="recap" aria-controls="p-recap" aria-selected="false">Récapitulatif annuel</button>
+    <button type="button" role="tab" id="t-journal" data-tab="journal" aria-controls="p-journal" aria-selected="false">Journal</button>
+    <button type="button" role="tab" id="t-pratiques" data-tab="pratiques" aria-controls="p-pratiques" aria-selected="false">Bonnes pratiques</button>
+  </nav>
+
+  <!-- Onglet : Saisie -->
+  <section class="panel" id="p-saisie" role="tabpanel" aria-labelledby="t-saisie">
+    <div class="sec-head"><h2 id="h-saisie">Saisie</h2><span class="label" id="loadnote">Chargement…</span></div>
+    <div class="bk-remind" id="bk-remind" hidden><span id="bk-remind-txt"></span><button type="button" class="btn-sm" id="bk-remind-btn">Exporter maintenant</button></div>
+    <form class="card" id="form" novalidate>
+      <div class="date-row">
+        <div class="f"><label class="label" for="f-date">Date</label><input type="date" id="f-date" required></div>
+        <p class="note" style="margin-bottom:9px">Cochez une ou plusieurs actions effectuées à cette date.</p>
+      </div>
+      <div class="domains">
+        <div class="domain jardin"><h3><span class="dot"></span>Jardin</h3><div class="subs" id="acts-jardin"></div></div>
+        <div class="domain piscine"><h3><span class="dot"></span>Piscine</h3><div class="subs" id="acts-piscine"></div></div>
+      </div>
+      <div class="f"><label class="label" for="f-note">Remarque <span style="text-transform:none;letter-spacing:0;font-weight:400">(facultatif, appliquée à chaque action cochée)</span></label>
+        <textarea id="f-note" placeholder="Produit utilisé, hauteur de coupe, observation…"></textarea></div>
+      <div class="actions"><button class="btn" type="submit" id="f-submit" disabled>Enregistrer</button><span class="msg" id="f-msg" role="status"></span></div>
+    </form>
+  </section>
+
+  <!-- Onglet : Début / fin de saison -->
+  <section class="panel" id="p-saison" role="tabpanel" aria-labelledby="t-saison" hidden>
+    <div class="sec-head">
+      <h2 id="h-saison">Début et fin de saison</h2>
+      <div class="yr"><button type="button" id="y-prev" aria-label="Année précédente">‹</button><span id="y-lbl"></span><button type="button" id="y-next" aria-label="Année suivante">›</button></div>
+    </div>
+    <div class="domain jardin"><h3><span class="dot"></span>Jardin</h3><div class="pair" id="sl-jardin"></div></div>
+    <div class="domain piscine"><h3><span class="dot"></span>Piscine</h3><div class="pair" id="sl-piscine"></div></div>
+    <p class="note">Cocher une étape enregistre la date du jour pour l'année affichée. Ces check-lists sont indépendantes du journal et du récapitulatif.</p>
+  </section>
+
+  <!-- Onglet : Récapitulatif annuel -->
+  <section class="panel" id="p-recap" role="tabpanel" aria-labelledby="t-recap" hidden>
+    <div class="sec-head"><h2 id="h-recap">Récapitulatif annuel</h2><span class="label">Nombre d'interventions par année</span></div>
+    <div class="card scroll"><table id="recap"></table></div>
+    <p class="note" id="recap-note"></p>
+  </section>
+
+  <!-- Onglet : Journal -->
+  <section class="panel" id="p-journal" role="tabpanel" aria-labelledby="t-journal" hidden>
+    <div class="sec-head">
+      <h2 id="h-journal">Journal</h2>
+      <div class="chips" role="group" aria-label="Filtrer le journal">
+        <button class="chip" type="button" data-f="all" aria-pressed="true">Tout</button>
+        <button class="chip" type="button" data-f="jardin" aria-pressed="false">Jardin</button>
+        <button class="chip" type="button" data-f="piscine" aria-pressed="false">Piscine</button>
+      </div>
+    </div>
+    <div class="card" id="journal"></div>
+    <div class="card backup" id="backup-card">
+      <div class="s-head"><h3>Sauvegarde</h3><span class="label" id="bk-last">…</span></div>
+      <div class="reset-body">
+        <p class="note">Sauvegarde mensuelle recommandée. L'export crée un fichier <b>.json</b> avec toutes les saisies, coches de saison et ajustements. Sur iPhone, choisissez « Enregistrer dans Fichiers », puis <b>iCloud Drive</b>.</p>
+        <div class="reset-row"><button type="button" class="btn" id="bk-export">Exporter la sauvegarde</button><span class="msg" id="bk-msg" role="status"></span></div>
+        <div class="imp">
+          <label class="label" for="bk-file">Restaurer une sauvegarde</label>
+          <input type="file" id="bk-file" accept=".json,application/json">
+          <div class="imp-confirm" id="bk-imp" hidden>
+            <span id="bk-imp-txt"></span>
+            <button type="button" class="btn danger" id="bk-imp-btn">Restaurer (remplace le carnet actuel)</button>
+          </div>
+          <span class="msg" id="bk-imp-msg" role="status"></span>
+        </div>
+      </div>
+    </div>
+    <div class="card reset" id="reset-card">
+      <div class="s-head"><h3>Vider le carnet</h3></div>
+      <div class="reset-body">
+        <label class="rk"><input type="checkbox" id="rs-data" checked> <span><b>Toutes les saisies</b> : interventions, mesures et coches de début / fin de saison</span></label>
+        <label class="rk"><input type="checkbox" id="rs-adj" checked> <span><b>Tous les ajustements manuels</b> : étapes de saison ajoutées ou retirées, bonnes pratiques modifiées (retour au contenu d'origine)</span></label>
+        <p class="warn">Suppression définitive, sans retour en arrière. Pour confirmer, tapez <b>VIDER</b> ci-dessous.</p>
+        <div class="reset-row">
+          <input type="text" id="rs-confirm" placeholder="VIDER" aria-label="Tapez VIDER pour confirmer" autocomplete="off">
+          <button type="button" class="btn danger" id="rs-btn" disabled>Vider</button>
+        </div>
+        <span class="msg" id="rs-msg" role="status"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Onglet : Bonnes pratiques -->
+  <section class="panel" id="p-pratiques" role="tabpanel" aria-labelledby="t-pratiques" hidden>
+    <div class="sec-head"><h2>Bonnes pratiques</h2></div>
+    <div class="domain jardin pr-dom" id="prd-jardin" hidden><h3><span class="dot"></span>Jardin</h3><div class="pr-list" id="pr-jardin"></div></div>
+    <div class="domain piscine pr-dom" id="prd-piscine" hidden><h3><span class="dot"></span>Piscine</h3><div class="pr-list" id="pr-piscine"></div></div>
+    <form class="card new-ch" id="nc-form" novalidate>
+      <div class="s-head"><h3>Nouveau chapitre</h3></div>
+      <div class="nc-row">
+        <input type="text" id="nc-title" placeholder="Titre du chapitre" aria-label="Titre du nouveau chapitre" maxlength="60">
+        <select id="nc-cat" aria-label="Domaine"><option value="piscine">Piscine</option><option value="jardin">Jardin</option></select>
+        <button class="btn-sm" type="submit" id="nc-btn">Créer</button>
+      </div>
+    </form>
+    <p class="note">Astuce : écrivez <b>**mot**</b> pour le mettre en gras. La durée est facultative.</p>
+  </section>
+</div>
+
+<script>
+(function(){
+  const TASKS = [
+    {id:'tonte',     cat:'jardin',  sub:'Gazon',       label:'Tonte'},
+    {id:'bordures',  cat:'jardin',  sub:'Gazon',       label:'Pied bordures'},
+    {id:'scarif',    cat:'jardin',  sub:'Gazon',       label:'Scarification'},
+    {id:'trait',     cat:'jardin',  sub:'Gazon',       label:'Traitement'},
+    {id:'haie',      cat:'jardin',  sub:'Plantes',     label:'Taille haie'},
+    {id:'plantes',   cat:'jardin',  sub:'Plantes',     label:'Coupe plantes'},
+    {id:'arbres',    cat:'jardin',  sub:'Plantes',     label:'Élagage arbres'},
+    {id:'karcher',   cat:'jardin',  sub:'Revêtements', label:'Pavés allée'},
+    {id:'mousse',    cat:'jardin',  sub:'Revêtements', label:'Mousse toit garage'},
+    {id:'terrasse',  cat:'jardin',  sub:'Revêtements', label:'Terrasse pierre'},
+    {id:'pergola',   cat:'jardin',  sub:'Revêtements', label:'Lamelles pergola'},
+    {id:'balcons',   cat:'jardin',  sub:'Revêtements', label:'Balcons avant et arrière'},
+    {id:'epuisette', cat:'piscine', sub:'Entretien',   label:'Nettoyage épuisette'},
+    {id:'robot',     cat:'piscine', sub:'Entretien',   label:'Nettoyage robot'},
+    {id:'volet',     cat:'piscine', sub:'Entretien',   label:'Nettoyage volet'},
+    {id:'choc',      cat:'piscine', sub:'Chimie',      label:'Chlore choc', hint:'(25 x 20g)', qty:true, unit:'g'},
+    {id:'lent',      cat:'piscine', sub:'Chimie',      label:'Chlore total (1-3ppm)', hint:'(+50g = +1ppm)', qty:true, unit:'g', measure:{name:'Chlore total', units:['ppm']}, dose:{high:3, per:50, unit:'g', mu:'ppm'}},
+    {id:'tac',       cat:'piscine', sub:'Chimie',      label:'TAC (80-120ppm)', hint:'+1kg = +10ppm', qty:true, unit:'g', keepCase:true, measure:{name:'TAC', units:['ppm']}, dose:{high:120, per:0.1, unit:'kg', mu:'ppm'}},
+    {id:'phminus',   cat:'piscine', sub:'Chimie',      label:'pH minus (700mV)', hint:'Dosage 15%', qty:true, unit:'l', units:['l'], keepCase:true, measure:{name:'pH', units:['pH'], ref:'(7.4)'}},
+    {id:'sel',       cat:'piscine', sub:'Chimie',      label:'Sel (2g/l)', hint:'+50kg = +1g/l', keepCase:true, qty:true, unit:'kg', measure:{name:'Sel', units:['g/l']}, dose:{high:2, per:50, unit:'kg', mu:'g/l'}},
+    {id:'cya',       cat:'piscine', sub:'Chimie',      label:'CYA (20-35ppm)', hint:'+500g = +10ppm', keepCase:true, qty:true, unit:'g', measure:{name:'CYA', units:['ppm']}, dose:{high:35, per:50, unit:'g', mu:'ppm'}},
+    {id:'hivernage', cat:'piscine', sub:'Chimie',      label:'Hivernage (2l)', keepCase:true, qty:true, unit:'l', units:['l'], defQty:2}
+  ];
+  const STEPS = [
+    ['pac','Purge PAC'],['sondes','Retrait des sondes'],['skimmer','Nettoyage skimmer'],['filtre','Nettoyage filtre'],
+    ['backwash','Backwash'],['parois','Nettoyage parois et fond'],['params','Paramètres'],['choc','Chlore choc'],['hivernage','Hivernage (2l)']
+  ];
+  const CATS = [['jardin','Jardin'],['piscine','Piscine']];
+  const MAX_YEARS = 6;
+  const taskById = Object.fromEntries(TASKS.map(t=>[t.id,t]));
+  const $ = id => document.getElementById(id);
+  const pad = n => String(n).padStart(2,'0');
+  const todayISO = () => { const t=new Date(); return t.getFullYear()+'-'+pad(t.getMonth()+1)+'-'+pad(t.getDate()); };
+  const fmt = iso => { if(!iso) return ''; const [y,m,d]=iso.split('-'); return d+'.'+m+'.'+y; };
+  const daysAgo = iso => { const [y,m,d]=iso.split('-').map(Number); const t=new Date(); return Math.round((Date.UTC(t.getFullYear(),t.getMonth(),t.getDate())-Date.UTC(y,m-1,d))/86400000); };
+  const agoTxt = n => n===0?"aujourd'hui":n===1?'hier':n<0?'dans '+(-n)+' j':'il y a '+n+' j';
+  const MONTHS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const nf = new Intl.NumberFormat('fr-CH');
+  const UNITS=['g','kg','ml','l'];
+  const qtyTxt = e => nf.format(e.qty)+' '+(e.unit||'g');
+  // dernière unité utilisée pour un produit (sinon unité par défaut)
+  const lastUnit = id => { const t=taskById[id], ok=t.units||UNITS; const e=entries.find(x=>x.task===id&&x.unit); return e&&ok.includes(e.unit)?e.unit:(t.unit||'g'); };
+  // totaux : masses ramenées en g, volumes en ml
+  const totTxt = (g,ml) => { const out=[];
+    if(g) out.push(g>=1000?nf.format(Math.round(g/10)/100)+' kg':nf.format(g)+' g');
+    if(ml) out.push(ml>=1000?nf.format(Math.round(ml/10)/100)+' l':nf.format(ml)+' ml');
+    return out.join(' + '); };
+  const taskName = t => { const pre=t.sub||t.group; if(!pre) return t.label; return pre+' · '+(t.keepCase?t.label:t.label.toLowerCase()); };
+
+  let mesures=[];
+  let entries=[], loaded=false, filter='all', year=new Date().getFullYear();
+  let season={items:{},params:'',debut:{},jdebut:{},jfin:{}}, db=null, unsubSeason=null, readOnly=false;
+
+  $('today').textContent = fmt(todayISO());
+  $('f-date').value = todayISO();
+
+  /* ---------- 1 · Saisie ---------- */
+  const lastEls = {}, lastMesEls = {};
+  function buildActions(){
+    for(const [cat] of CATS){
+      const root=$('acts-'+cat), subBoxes={};
+      for(const t of TASKS.filter(x=>x.cat===cat)){
+        let box=root;
+        if(t.sub){
+          if(!subBoxes[t.sub]){
+            const sb=document.createElement('div'); sb.className='sub'+(t.sub==='Revêtements'?' wide':'')+(t.cat==='piscine'?' full':'')+(t.sub==='Chimie'?' chem':'');
+            const h=document.createElement('h4'); h.textContent=t.sub;
+            const g=document.createElement('div'); g.className='acts';
+            sb.append(h,g); root.appendChild(sb); subBoxes[t.sub]=g;
+          }
+          box=subBoxes[t.sub];
+        }
+        const tile=document.createElement('div'); tile.className='act';
+        const la=document.createElement('label');
+        const cb=document.createElement('input'); cb.type='checkbox'; cb.id='a-'+t.id; cb.value=t.id;
+        const nm=document.createElement('span'); nm.className='nm';
+        if(t.group){ const s=document.createElement('small'); s.textContent=t.group; nm.appendChild(s); }
+        nm.append(t.label);
+        if(t.hint){ const h=document.createElement('span'); h.className='hint'; h.textContent=t.hint; nm.appendChild(h); }
+        const last=document.createElement('span'); last.className='last'; last.textContent='…';
+        lastEls[t.id]=last;
+        la.append(cb,nm,last); tile.appendChild(la);
+        let io=null, sg=null;
+        if(t.measure){
+          io=document.createElement('div'); io.className='io'; tile.appendChild(io);
+          const mr=document.createElement('div'); mr.className='mes';
+          const ml=document.createElement('label'); ml.htmlFor='m-'+t.id; ml.textContent='Mesure';
+          const mi=document.createElement('input'); mi.type='number'; mi.step='any'; mi.inputMode='decimal'; mi.id='m-'+t.id; mi.placeholder='–'; mi.setAttribute('aria-label','Mesure '+t.measure.name);
+          mi.addEventListener('input',()=>{ tile.classList.toggle('measured',mi.value.trim()!==''); updateSugg(t); syncSubmit(); });
+          let mu;
+          if(t.measure.units.length>1){ mu=document.createElement('select'); mu.id='mu-'+t.id; mu.setAttribute('aria-label','Unité de mesure '+t.measure.name); for(const un of t.measure.units){ const o=document.createElement('option'); o.value=un; o.textContent=un; mu.appendChild(o);} }
+          else { mu=document.createElement('span'); mu.className='mu'; mu.textContent=t.measure.units[0]; }
+          const lm=document.createElement('span'); lm.className='last lastm'; lastMesEls[t.id]=lm; la.appendChild(lm);
+          mr.append(ml,mi,mu);
+          if(t.measure.ref){ const rf=document.createElement('span'); rf.className='hint'; rf.textContent=t.measure.ref; mr.appendChild(rf); }
+          io.appendChild(mr);
+          sg=document.createElement('div'); sg.className='sugg'; sg.id='sg-'+t.id; sg.hidden=true;
+        }
+        let q=null;
+        if(t.qty){
+          q=document.createElement('div'); q.className='qty'; q.hidden=!t.measure;
+          if(t.measure){ const al=document.createElement('label'); al.htmlFor='q-'+t.id; al.textContent='Ajout'; q.appendChild(al); }
+          const qi=document.createElement('input'); qi.type='number'; qi.min='0'; qi.step='any'; qi.inputMode='decimal'; qi.id='q-'+t.id; qi.placeholder='Quantité'; qi.setAttribute('aria-label','Quantité ajoutée de '+t.label);
+          const u=document.createElement('select'); u.id='u-'+t.id; u.setAttribute('aria-label','Unité pour '+t.label);
+          for(const un of (t.units||UNITS)){ const o=document.createElement('option'); o.value=un; o.textContent=un; u.appendChild(o); }
+          u.value=t.unit||'g';
+          q.append(qi,u); (io||tile).appendChild(q);
+          if(sg) tile.appendChild(sg);
+          if(t.measure){
+            // saisir une quantité coche l'ajout ; la vider le décoche
+            qi.addEventListener('input',ev=>{
+              if(ev.detail!=='auto') qi.dataset.auto= qi.value.trim()===''?'':'0';
+              const on=qi.value.trim()!==''; if(cb.checked!==on){ cb.checked=on; tile.classList.toggle('on',on); syncSubmit(); }
+            });
+          }
+        }
+        cb.addEventListener('change',()=>{
+          tile.classList.toggle('on',cb.checked);
+          if(q && !t.measure){ q.hidden=!cb.checked; }
+          if(q && cb.checked){ if($('q-'+t.id).value.trim()===''){ $('u-'+t.id).value=lastUnit(t.id); if(t.defQty!=null) $('q-'+t.id).value=String(t.defQty); } $('q-'+t.id).focus(); }
+          if(q && t.measure && !cb.checked){ $('q-'+t.id).value=''; $('q-'+t.id).dataset.auto=''; }
+          syncSubmit();
+        });
+        box.appendChild(tile);
+      }
+    }
+  }
+  function fmtDose(v,unit){ const r= unit==='kg'||unit==='l' ? Math.round(v*10)/10 : Math.round(v); return nf.format(r)+' '+unit; }
+  // Préremplit AJOUT selon le calcul, tant que la quantité n'a pas été modifiée à la main
+  function setAuto(t,val,unit){
+    const qi=$('q-'+t.id);
+    if(qi.value.trim()!=='' && qi.dataset.auto!=='1') return; // saisie manuelle : on n'écrase pas
+    if(unit) $('u-'+t.id).value=unit;
+    qi.value=val; qi.dataset.auto= val===''?'':'1';
+    qi.dispatchEvent(new CustomEvent('input',{detail:'auto'}));
+  }
+  function updateSugg(t){
+    const sg=$('sg-'+t.id); if(!sg) return;
+    const v=$('m-'+t.id).value.trim(); sg.textContent='';
+    const dz=t.dose;
+    if(!dz){ sg.hidden=true; return; }
+    if(v===''||isNaN(Number(v))){ sg.hidden=true; setAuto(t,''); return; }
+    sg.hidden=false;
+    const m=Number(v);
+    if(m>=dz.high){ sg.textContent='Mesure ≥ max de la cible ('+nf.format(dz.high)+dz.mu+') : aucun ajout.'; setAuto(t,''); return; }
+    const amt=(dz.high-m)*dz.per;
+    const r= dz.unit==='kg'||dz.unit==='l' ? Math.round(amt*10)/10 : Math.round(amt);
+    const txt=document.createElement('span'); txt.textContent='Calcul : '; const b=document.createElement('b'); b.textContent=fmtDose(amt,dz.unit); txt.appendChild(b);
+    txt.append(' pour atteindre le max de la cible ('+nf.format(dz.high)+dz.mu+')');
+    sg.appendChild(txt);
+    setAuto(t,String(r),dz.unit);
+    const qi=$('q-'+t.id);
+    if(qi.dataset.auto!=='1'){ const n=document.createElement('span'); n.className='manual'; n.textContent='(ajout modifié manuellement)'; sg.appendChild(n); }
+  }
+  function selected(){ return TASKS.filter(t=>$('a-'+t.id).checked); }
+  function measured(){ return TASKS.filter(t=>t.measure && $('m-'+t.id).value.trim()!==''); }
+  function syncSubmit(){
+    const n=selected().length, m=measured().length, parts=[];
+    if(n) parts.push(n+' action'+(n>1?'s':''));
+    if(m) parts.push(m+' mesure'+(m>1?'s':''));
+    $('f-submit').textContent = parts.length && (n+m)>1 ? 'Enregistrer ('+parts.join(', ')+')' : 'Enregistrer';
+    $('f-submit').disabled = !db || readOnly || (n+m)===0;
+    try{ syncReset(); }catch(_){}
+  }
+  const mesTxt = m => nf.format(m.value)+' '+(m.munit||'');
+  function renderLast(){
+    const last={};
+    for(const e of entries){ if(!last[e.task]||e.date>last[e.task].date) last[e.task]=e; }
+    for(const t of TASKS){
+      const el=lastEls[t.id], e=last[t.id];
+      if(!loaded){ el.textContent='…'; continue; }
+      el.textContent = e ? 'dernière : '+fmt(e.date)+' · '+agoTxt(daysAgo(e.date))+(e.qty!=null?' · '+qtyTxt(e):'') : '';
+      el.hidden = loaded && !e;
+    }
+    const lastM={};
+    for(const m of mesures){ if(!lastM[m.task]||m.date>lastM[m.task].date) lastM[m.task]=m; }
+    for(const id in lastMesEls){ const m=lastM[id]; lastMesEls[id].textContent = !loaded?'':(m?'dernière : '+mesTxt(m)+' ('+fmt(m.date)+')':''); lastMesEls[id].hidden = loaded && !m; }
+  }
+  function setMsg(txt,err){ const m=$('f-msg'); m.textContent=txt; m.className='msg'+(err?' err':''); }
+
+  $('form').addEventListener('submit', async e=>{
+    e.preventDefault();
+    if(!db||readOnly){ setMsg('Enregistrement indisponible dans cette vue.',true); return; }
+    const date=$('f-date').value, sel=selected();
+    if(!date){ setMsg('Indiquez une date.',true); $('f-date').focus(); return; }
+    const mes=measured();
+    if(!sel.length && !mes.length){ setMsg('Cochez une action ou saisissez une mesure.',true); return; }
+    const mBodies=[];
+    for(const t of mes){
+      const v=$('m-'+t.id).value.trim();
+      if(isNaN(Number(v))){ setMsg('Mesure invalide : '+t.measure.name+'.',true); $('m-'+t.id).focus(); return; }
+      const mu=t.measure.units.length>1?$('mu-'+t.id).value:t.measure.units[0];
+      mBodies.push({date, cat:t.cat, task:t.id, value:Number(v), munit:mu, createdAt:new Date().toISOString()});
+    }
+    const bodies=[];
+    for(const t of sel){
+      let qty=null;
+      if(t.qty){
+        const v=$('q-'+t.id).value.trim();
+        if(v===''||isNaN(Number(v))||Number(v)<0){ setMsg('Indiquez la quantité ajoutée : '+t.label+'.',true); $('q-'+t.id).focus(); return; }
+        qty=Number(v);
+      }
+      const unit = t.qty ? $('u-'+t.id).value : null;
+      bodies.push({date, cat:t.cat, task:t.id, qty, unit, note:$('f-note').value.trim(), createdAt:new Date().toISOString()});
+    }
+    $('f-submit').disabled=true;
+    let ok=0, okM=0;
+    try{
+      for(const b of bodies){ await db.collection('entries').add(b); ok++; }
+      for(const b of mBodies){ await db.collection('mesures').add(b); okM++; }
+      const parts=[]; if(ok) parts.push(ok+' action'+(ok>1?'s':'')); if(okM) parts.push(okM+' mesure'+(okM>1?'s':''));
+      setMsg('Enregistré au '+fmt(date)+' : '+parts.join(', ')+'.');
+      for(const t of sel){ const cb=$('a-'+t.id); cb.checked=false; cb.dispatchEvent(new Event('change')); if(t.qty) $('q-'+t.id).value=''; }
+      for(const t of mes){ const mi=$('m-'+t.id); mi.value=''; mi.dispatchEvent(new Event('input')); }
+      $('f-note').value='';
+    }catch(err){
+      const done=ok+okM, all=bodies.length+mBodies.length;
+      const part= done ? ' ('+done+' sur '+all+' enregistrée'+(done>1?'s':'')+')' : '';
+      if(err&&err.code==='invalid_argument'){ goReadOnly(); setMsg("Vous n'avez pas les droits d'écriture sur ce carnet."+part,true); }
+      else if(err&&err.code==='quota_exceeded'){ setMsg("Capacité du carnet atteinte : supprimez d'anciennes entrées."+part,true); }
+      else setMsg("L'enregistrement a échoué"+part+". Réessayez dans un instant.",true);
+    }finally{ syncSubmit(); }
+  });
+
+  /* ---------- 2 · Récapitulatif ---------- */
+  function renderRecap(){
+    const curY=new Date().getFullYear();
+    const yrs=new Set([curY]);
+    for(const e of entries) yrs.add(Number(e.date.slice(0,4)));
+    for(const m of mesures) yrs.add(Number(m.date.slice(0,4)));
+    const years=[...yrs].filter(y=>y<=curY).sort((a,b)=>b-a).slice(0,MAX_YEARS);
+    const count={}, mass={}, vol={};
+    for(const e of entries){
+      const y=Number(e.date.slice(0,4));
+      count[e.task+'|'+y]=(count[e.task+'|'+y]||0)+1;
+      if(e.qty!=null){ const k=e.task+'|'+y, q=Number(e.qty)||0, u=e.unit||'g';
+        if(u==='kg') mass[k]=(mass[k]||0)+q*1000; else if(u==='g') mass[k]=(mass[k]||0)+q;
+        else if(u==='l') vol[k]=(vol[k]||0)+q*1000; else if(u==='ml') vol[k]=(vol[k]||0)+q; }
+    }
+    const tb=$('recap'); tb.textContent='';
+    const thead=document.createElement('thead'); const hr=document.createElement('tr');
+    const h0=document.createElement('th'); h0.textContent='Intervention'; h0.className='label'; hr.appendChild(h0);
+    for(const y of years){ const th=document.createElement('th'); th.textContent=y; if(y===curY) th.className='cur'; hr.appendChild(th); }
+    thead.appendChild(hr); tb.appendChild(thead);
+    const body=document.createElement('tbody');
+    const cell=(v,y,cls)=>{ const td=document.createElement('td'); td.textContent=v; const c=[]; if(y===curY) c.push('cur'); if(cls) c.push(cls); td.className=c.join(' '); return td; };
+    for(const [cat,lbl] of CATS){
+      const g=document.createElement('tr'); g.className='grp '+cat;
+      const gd=document.createElement('td'); gd.colSpan=years.length+1; gd.innerHTML='<span class="in"><span class="dot"></span></span>'; gd.firstChild.append(lbl); g.appendChild(gd); body.appendChild(g);
+      const tot={}; let curSub=null;
+      for(const t of TASKS.filter(x=>x.cat===cat)){
+        if(t.sub && t.sub!==curSub){
+          curSub=t.sub;
+          const sr=document.createElement('tr'); sr.className='subrow '+cat;
+          const sd=document.createElement('td'); sd.colSpan=years.length+1; sd.textContent=t.sub; sr.appendChild(sd); body.appendChild(sr);
+        }
+        const tr=document.createElement('tr'); tr.className='task '+cat+(t.sub?' in-sub':'');
+        const n=document.createElement('td'); n.textContent=t.sub?t.label:taskName(t); if(t.hint){ const h=document.createElement('span'); h.className='hint'; h.textContent=' '+t.hint; n.appendChild(h); } tr.appendChild(n);
+        for(const y of years){ const v=count[t.id+'|'+y]||0; tot[y]=(tot[y]||0)+v; tr.appendChild(cell(v,y,v?'':'zero')); }
+        body.appendChild(tr);
+        if(t.qty){
+          const tq=document.createElement('tr');
+          const nq=document.createElement('td'); nq.innerHTML='<small></small>'; nq.firstChild.textContent='quantité totale'; tq.appendChild(nq); if(t.sub) tq.className='in-sub';
+          for(const y of years){ const k=t.id+'|'+y, txt=totTxt(mass[k]||0,vol[k]||0); tq.appendChild(cell(txt||'–',y,txt?'':'zero')); }
+          body.appendChild(tq);
+        }
+      }
+      const tr=document.createElement('tr'); tr.className='tot';
+      const n=document.createElement('td'); n.textContent='Total '+lbl.toLowerCase(); tr.appendChild(n);
+      for(const y of years) tr.appendChild(cell(tot[y]||0,y));
+      body.appendChild(tr);
+      if(cat==='piscine'){
+        // Suivi des paramètres : nombre de mesures et plage min–max par année (toutes mesures, avec ou sans ajout)
+        const sr=document.createElement('tr'); sr.className='subrow piscine';
+        const sd=document.createElement('td'); sd.colSpan=years.length+1; sd.textContent='Paramètres mesurés'; sr.appendChild(sd); body.appendChild(sr);
+        for(const t of TASKS.filter(x=>x.measure)){
+          const trm=document.createElement('tr'); trm.className='task piscine in-sub';
+          const nm=document.createElement('td'); nm.textContent=t.measure.name; trm.appendChild(nm);
+          for(const y of years){
+            const ms=mesures.filter(m=>m.task===t.id&&Number(m.date.slice(0,4))===y);
+            const td=cell(ms.length?ms.length+' mes.':'–',y,ms.length?'':'zero');
+            if(ms.length){
+              const byU={}; for(const m of ms){ (byU[m.munit||'']=byU[m.munit||'']||[]).push(m.value); }
+              const rng=Object.entries(byU).map(([u,v])=>{ const a=Math.min(...v), b=Math.max(...v); return (a===b?nf.format(a):nf.format(a)+'–'+nf.format(b))+' '+u; }).join(' · ');
+              const sm=document.createElement('small'); sm.style.display='block'; sm.textContent=rng; td.appendChild(sm);
+            }
+            trm.appendChild(td);
+          }
+          body.appendChild(trm);
+        }
+      }
+    }
+    tb.appendChild(body);
+    $('recap-note').textContent = loaded
+      ? curY+' : année en cours, au '+fmt(todayISO())+'. '+(years.length>1?'Les années précédentes sont complètes jusqu\'au 31.12.':'Les années précédentes apparaîtront dès qu\'une intervention y sera saisie (date antérieure au 01.01.'+curY+').')
+      : 'Chargement…';
+  }
+
+  /* ---------- 3 · Journal ---------- */
+  let armed=null;
+  function renderJournal(){
+    const box=$('journal'); box.textContent='';
+    const all=entries.map(e=>({...e,kind:'entry'})).concat(mesures.map(m=>({...m,kind:'mesure'})));
+    all.sort((a,b)=> a.date===b.date ? String(b.createdAt||'').localeCompare(String(a.createdAt||'')) : (a.date<b.date?1:-1));
+    const list=all.filter(e=>filter==='all'||e.cat===filter);
+    if(!list.length){
+      const d=document.createElement('div'); d.className='empty';
+      d.innerHTML=loaded ? '<strong>Aucune intervention enregistrée</strong>Cochez une action dans la saisie pour créer la première entrée.' : '<strong>Chargement du journal…</strong>';
+      box.appendChild(d); return;
+    }
+    let curM='';
+    for(const e of list){
+      const m=e.date.slice(0,7);
+      if(m!==curM){ curM=m; const h=document.createElement('div'); h.className='month label'; const [y,mm]=m.split('-'); h.textContent=MONTHS[Number(mm)-1]+' '+y; box.appendChild(h); }
+      const t=taskById[e.task]||{label:e.task,cat:e.cat};
+      const row=document.createElement('div'); row.className='entry '+e.cat;
+      const d=document.createElement('div'); d.className='d'; d.textContent=fmt(e.date);
+      const tt=document.createElement('div'); tt.className='t';
+      const tag=document.createElement('span'); tag.className='tag'; tag.textContent=e.cat==='jardin'?'Jardin':'Piscine';
+      const nm=document.createElement('span'); nm.className='tn';
+      if(e.kind==='mesure'){ tag.textContent='Mesure'; nm.textContent=(t.measure?t.measure.name:t.label); }
+      else nm.textContent=taskName(t);
+      tt.append(tag,nm);
+      if(e.kind==='mesure'){ const q=document.createElement('span'); q.className='qtyv'; q.textContent=mesTxt(e); tt.appendChild(q); }
+      else if(e.qty!=null){ const q=document.createElement('span'); q.className='qtyv'; q.textContent=qtyTxt(e); tt.appendChild(q); }
+      const del=document.createElement('button'); del.type='button'; del.className='del'; del.textContent='Supprimer'; del.hidden=readOnly||!db;
+      const path=(e.kind==='mesure'?'mesures/':'entries/')+e.id;
+      del.addEventListener('click',()=>onDelete(path,del));
+      row.append(d,tt,del);
+      if(e.note){ const n=document.createElement('div'); n.className='n'; n.textContent=e.note; row.appendChild(n); }
+      box.appendChild(row);
+    }
+  }
+  async function onDelete(id,btn){
+    if(armed!==id){
+      armed=id; document.querySelectorAll('.del.arm').forEach(b=>{b.classList.remove('arm');b.textContent='Supprimer';});
+      btn.classList.add('arm'); btn.textContent='Confirmer';
+      setTimeout(()=>{ if(armed===id){armed=null; btn.classList.remove('arm'); btn.textContent='Supprimer';} },4000); return;
+    }
+    armed=null; btn.disabled=true;
+    try{ await db.doc(id).delete(); }
+    catch(err){ btn.disabled=false; btn.classList.remove('arm'); btn.textContent='Échec'; if(err&&err.code==='invalid_argument') goReadOnly(); }
+  }
+  document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
+    filter=c.dataset.f; document.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed',String(x===c))); renderJournal();
+  }));
+
+  /* ---------- Début / fin de saison ---------- */
+  // Listes : étapes définies par l'utilisateur (config/...) sauf la fin de saison piscine (liste fixe STEPS)
+  const LISTS=[
+    {key:'jdebut', cat:'jardin',  title:'Début de saison', cfg:'config/jardin-debut', ph:'Nouvelle étape de début de saison', defaults:[{id:'engrais-gazon',label:'Engrais gazon'},{id:'arrosage',label:'Rallumer arrosage'},{id:'robinets',label:'Rallumer robinets extérieurs'}]},
+    {key:'jfin',   cat:'jardin',  title:'Fin de saison',   cfg:'config/jardin-fin',   ph:'Nouvelle étape de fin de saison', defaults:[{id:'purge-arrosage',label:'Purge arrosage'},{id:'purge-robinets',label:'Purge robinets extérieurs'},{id:'scarification',label:'Scarification'},{id:'mobilier',label:'Rentrer mobilier'}]},
+    {key:'debut',  cat:'piscine', title:'Début de saison', cfg:'config/debut',        ph:'Nouvelle étape de mise en service', defaults:[{id:'nettoyage',label:'Nettoyer piscine'},{id:'params',label:'Régler paramètres eau'},{id:'choc',label:'Chlore choc'},{id:'sondes',label:'Installer sondes'},{id:'electrolyseur',label:'Étalonner électrolyseur (50% au début) et pH'},{id:'pac',label:'Allumage PAC'}]},
+    {key:'items',  cat:'piscine', title:'Fin de saison',   fixed:true}
+  ];
+  const SEASON_KEYS=['items','debut','jdebut','jfin'];
+  const userSteps={}; LISTS.forEach(l=>{ if(l.cfg) userSteps[l.key]=(l.defaults||[]).slice(); });
+  let sWrite=Promise.resolve(), cWrite=Promise.resolve();
+  let rmArmed=null;
+  function buildSeasonCards(){
+    for(const l of LISTS){
+      const card=document.createElement('div'); card.className='card saison-card '+l.cat;
+      card.innerHTML='<div class="s-head"><h3></h3><span class="label"></span></div><div class="progress"><i></i></div><ol class="steps"></ol>';
+      card.querySelector('h3').textContent=l.title;
+      card.querySelector('.label').id='cnt-'+l.key; card.querySelector('.progress i').id='bar-'+l.key; card.querySelector('ol').id='ol-'+l.key;
+      if(l.cfg){
+        const f=document.createElement('form'); f.className='add-step'; f.noValidate=true;
+        const inp=document.createElement('input'); inp.type='text'; inp.id='new-'+l.key; inp.placeholder=l.ph; inp.maxLength=80; inp.setAttribute('aria-label',l.ph+' ('+(l.cat==='jardin'?'jardin':'piscine')+')');
+        const bt=document.createElement('button'); bt.className='btn-sm'; bt.type='submit'; bt.id='add-'+l.key; bt.textContent='Ajouter';
+        f.append(inp,bt); card.appendChild(f);
+        f.addEventListener('submit',e=>{ e.preventDefault(); const v=inp.value.trim(); if(!v) return;
+          saveSteps(l,[...userSteps[l.key],{id:'e'+Date.now().toString(36),label:v}]); inp.value=''; inp.focus(); });
+      }
+      $('sl-'+l.cat).appendChild(card);
+    }
+  }
+  function stepRow(l,k,lbl,it,removable){
+    const li=document.createElement('li'); if(it.done) li.className='done';
+    const cb=document.createElement('input'); cb.type='checkbox'; cb.id=l.key+'-'+k; cb.checked=!!it.done; cb.disabled=!db||readOnly;
+    cb.addEventListener('change',()=>toggleStep(l.key,k,cb.checked));
+    const la=document.createElement('label'); la.htmlFor=cb.id; la.textContent=lbl;
+    const w=document.createElement('span'); w.className='when'; w.textContent=it.done&&it.date?fmt(it.date):'';
+    li.append(cb,la,w);
+    if(removable && db && !readOnly){
+      const rid=l.key+'-'+k;
+      const rm=document.createElement('button'); rm.type='button'; rm.className='rm'; rm.id='rm-'+rid; rm.textContent='×'; rm.setAttribute('aria-label','Retirer l\'étape '+lbl);
+      rm.addEventListener('click',()=>{
+        if(rmArmed!==rid){ rmArmed=rid; rm.classList.add('arm'); rm.textContent='Retirer'; setTimeout(()=>{ if(rmArmed===rid){ rmArmed=null; rm.classList.remove('arm'); rm.textContent='×'; } },4000); return; }
+        rmArmed=null; saveSteps(l,userSteps[l.key].filter(x=>x.id!==k));
+      });
+      li.appendChild(rm);
+    }
+    return li;
+  }
+  function renderSeason(){
+    $('y-lbl').textContent=year;
+    const active=document.activeElement&&document.activeElement.id;
+    for(const l of LISTS){
+      const ol=$('ol-'+l.key); ol.textContent=''; let done=0;
+      const state=season[l.key]||{};
+      const steps= l.fixed ? STEPS.map(([id,label])=>({id,label})) : userSteps[l.key];
+      if(!steps.length){
+        const p=document.createElement('li'); p.className='steps-empty';
+        p.textContent='Aucune étape définie. Ajoutez vos étapes ci-dessous ; elles serviront pour toutes les années.';
+        ol.appendChild(p);
+      }
+      for(const st of steps){
+        const it=state[st.id]||{}; if(it.done) done++;
+        const li=stepRow(l,st.id,st.label,it,!l.fixed);
+        if(false){ // champ de saisie des paramètres retiré (simple case à cocher)
+          const pk= l.key==='items' ? 'params' : l.key+'_params';
+          const p=document.createElement('input'); p.type='text'; p.id=l.key+'-params-val'; p.className='params';
+          p.placeholder='Valeurs relevées (pH, chlore, TAC…)'; p.value=season[pk]||''; p.disabled=!db||readOnly;
+          p.addEventListener('change',()=>{ const s=cloneSeason(); s[pk]=p.value.trim(); season=s; saveSeason(s); });
+          li.appendChild(p);
+        }
+        ol.appendChild(li);
+      }
+      $('cnt-'+l.key).textContent=done+' / '+steps.length+' étapes';
+      $('bar-'+l.key).style.width=(steps.length?done/steps.length*100:0)+'%';
+      if(l.cfg){ $('new-'+l.key).disabled=$('add-'+l.key).disabled=!db||readOnly; }
+    }
+    if(active){ const el=$(active); if(el) el.focus({preventScroll:true}); }
+  }
+  function cloneSeason(){ const o={params:season.params||'', debut_params:season.debut_params||''}; for(const k of SEASON_KEYS) o[k]=season[k]||{}; return JSON.parse(JSON.stringify(o)); }
+  function toggleStep(key,k,on){
+    const s=cloneSeason(); s[key][k]= on?{done:true,date:todayISO()}:{done:false,date:null};
+    season=s; renderSeason(); saveSeason(s);
+  }
+  function saveSteps(l,list){
+    if(!db||readOnly) return;
+    userSteps[l.key]=list; renderSeason();
+    cWrite=cWrite.then(()=>db.doc(l.cfg).set({steps:list})).catch(err=>{ if(err&&err.code==='invalid_argument') goReadOnly(); });
+  }
+  function saveSeason(body){
+    if(!db||readOnly) return;
+    const y=year;
+    sWrite=sWrite.then(()=>db.doc('saisons/'+y).set(body)).catch(err=>{ if(err&&err.code==='invalid_argument') goReadOnly(); });
+  }
+  function emptySeason(){ const o={params:'', debut_params:''}; for(const k of SEASON_KEYS) o[k]={}; return o; }
+  function subscribeSeason(){
+    if(unsubSeason) unsubSeason();
+    season=emptySeason(); renderSeason();
+    if(!db) return;
+    unsubSeason=db.doc('saisons/'+year).onSnapshot(snap=>{
+      const d=snap.exists?snap.data():null; const o=emptySeason();
+      if(d){ o.params=d.params||''; o.debut_params=d.debut_params||''; for(const k of SEASON_KEYS) o[k]=d[k]||{}; }
+      season=o; renderSeason();
+    },()=>{});
+  }
+  function subscribeSteps(){
+    for(const l of LISTS.filter(x=>x.cfg)){
+      db.doc(l.cfg).onSnapshot(snap=>{
+        const d=snap.exists?snap.data():null;
+        userSteps[l.key]=!d?(l.defaults||[]).slice():Array.isArray(d.steps)?d.steps.filter(x=>x&&x.id&&x.label).map(x=>({id:String(x.id),label:String(x.label)})):[];
+        renderSeason();
+      },()=>{});
+    }
+  }
+  buildSeasonCards();
+  $('y-prev').addEventListener('click',()=>{ year--; subscribeSeason(); });
+  $('y-next').addEventListener('click',()=>{ year++; subscribeSeason(); });
+
+  /* ---------- Bonnes pratiques (éditables, stockées dans config/pratiques) ---------- */
+  const PR_DEFAULT={chapters:[
+    {id:'backwash',cat:'piscine',type:'steps',title:'Backwash',items:[
+      {id:'b1',text:'Arrêter la pompe'},
+      {id:'b2',text:"Vanne sur **Backwash** et ouvrir l'évacuation à moitié"},
+      {id:'b3',text:"Allumer la pompe, l'arrêter quand l'eau devient claire",dur:'~2 min'},
+      {id:'b4',text:'Arrêter la pompe'},
+      {id:'b5',text:'Vanne sur **Rinçage**, avec évacuation ouverte',dur:'~30 s'},
+      {id:'b6',text:'Arrêter la pompe'},
+      {id:'b7',text:'Vanne sur **Filtration**'}]},
+    {id:'vanne6',cat:'piscine',type:'rules',title:'Vanne 6 voies',items:[{id:'v1',text:'Toujours arrêter la pompe'}]},
+    {id:'robot',cat:'piscine',type:'rules',title:'Robot',items:[{id:'r1',text:'Ne pas utiliser sous **15°C**'}]}
+  ]};
+  let pratiques=JSON.parse(JSON.stringify(PR_DEFAULT)), pWrite=Promise.resolve(), prArmed=null;
+  const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const richText=t=>esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+  const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+  function canEdit(){ return !!db && !readOnly; }
+  function savePratiques(next){
+    if(!canEdit()) return;
+    pratiques=next; renderPratiques();
+    pWrite=pWrite.then(()=>db.doc('config/pratiques').set(JSON.parse(JSON.stringify(next)))).catch(err=>{ if(err&&err.code==='invalid_argument') goReadOnly(); });
+  }
+  function armBtn(btn,key,label,onConfirm){
+    btn.addEventListener('click',()=>{
+      if(prArmed!==key){ prArmed=key; btn.classList.add('arm'); btn.textContent=label; setTimeout(()=>{ if(prArmed===key){ prArmed=null; btn.classList.remove('arm'); btn.textContent='×'; } },4000); return; }
+      prArmed=null; onConfirm();
+    });
+  }
+  function renderPratiques(){
+    const active=document.activeElement&&document.activeElement.id;
+    const edit=canEdit();
+    for(const cat of ['jardin','piscine']){
+      const box=$('pr-'+cat); box.textContent='';
+      const chs=pratiques.chapters.filter(c=>c.cat===cat);
+      $('prd-'+cat).hidden=!chs.length;
+      for(const ch of chs){
+        const art=document.createElement('article'); art.className='card proc '+cat;
+        const hd=document.createElement('div'); hd.className='s-head';
+        const h=document.createElement('h3'); h.textContent=ch.title;
+        const act=document.createElement('div'); act.className='ch-actions';
+        { const lb=document.createElement('span'); lb.className='label'; lb.textContent=ch.items.length+' étape'+(ch.items.length>1?'s':''); act.appendChild(lb); }
+        if(edit){ const rm=document.createElement('button'); rm.type='button'; rm.className='rm'; rm.id='prc-'+ch.id; rm.textContent='×'; rm.setAttribute('aria-label','Supprimer le chapitre '+ch.title);
+          armBtn(rm,'c-'+ch.id,'Supprimer le chapitre',()=>savePratiques({chapters:pratiques.chapters.filter(c=>c.id!==ch.id)})); act.appendChild(rm); }
+        hd.append(h,act); art.appendChild(hd);
+        const list=document.createElement('ol'); list.className='proc-steps';
+        for(const it of ch.items){
+          const li=document.createElement('li');
+          const tx=document.createElement('span'); tx.innerHTML=richText(it.text); li.appendChild(tx);
+          if(it.dur){ const d=document.createElement('span'); d.className='dur'; d.textContent=it.dur; li.appendChild(d); }
+          if(edit){ const rm=document.createElement('button'); rm.type='button'; rm.className='rm pr-rm'; rm.id='pri-'+ch.id+'-'+it.id; rm.textContent='×'; rm.setAttribute('aria-label','Retirer la tâche');
+            armBtn(rm,'i-'+ch.id+'-'+it.id,'Retirer',()=>savePratiques({chapters:pratiques.chapters.map(c=>c.id!==ch.id?c:{...c,items:c.items.filter(x=>x.id!==it.id)})})); li.appendChild(rm); }
+          list.appendChild(li);
+        }
+        art.appendChild(list);
+        if(!ch.items.length){ const e=document.createElement('div'); e.className='proc-empty'; e.textContent='Aucune tâche. Ajoutez la première ci-dessous.'; art.appendChild(e); }
+        if(edit){
+          const f=document.createElement('form'); f.className='add-step'; f.noValidate=true;
+          const ti=document.createElement('input'); ti.type='text'; ti.id='prt-'+ch.id; ti.placeholder='Nouvelle tâche'; ti.maxLength=140; ti.setAttribute('aria-label','Nouvelle tâche pour '+ch.title);
+          const di=document.createElement('input'); di.type='text'; di.id='prd-in-'+ch.id; di.className='pd'; di.placeholder='Durée'; di.maxLength=20; di.setAttribute('aria-label','Durée (facultatif)');
+          const bt=document.createElement('button'); bt.type='submit'; bt.className='btn-sm'; bt.textContent='Ajouter';
+          f.append(ti,di,bt);
+          f.addEventListener('submit',e=>{ e.preventDefault(); const t=ti.value.trim(); if(!t){ ti.focus(); return; }
+            const item={id:newId(),text:t}; const d=di.value.trim(); if(d) item.dur=d;
+            savePratiques({chapters:pratiques.chapters.map(c=>c.id!==ch.id?c:{...c,items:[...c.items,item]})});
+            const again=$('prt-'+ch.id); if(again) again.focus(); });
+          art.appendChild(f);
+        }
+        box.appendChild(art);
+      }
+    }
+    $('nc-form').hidden=!edit;
+    if(active){ const el=$(active); if(el) el.focus({preventScroll:true}); }
+  }
+  $('nc-form').addEventListener('submit',e=>{
+    e.preventDefault(); const t=$('nc-title').value.trim(); if(!t){ $('nc-title').focus(); return; }
+    const ch={id:newId(),cat:$('nc-cat').value,type:'steps',title:t,items:[]};
+    savePratiques({chapters:[...pratiques.chapters,ch]}); $('nc-title').value='';
+    const ti=$('prt-'+ch.id); if(ti) ti.focus();
+  });
+  function subscribePratiques(){
+    db.doc('config/pratiques').onSnapshot(snap=>{
+      const d=snap.exists?snap.data():null;
+      pratiques= d&&Array.isArray(d.chapters) ? {chapters:d.chapters.filter(c=>c&&c.id&&c.title).map(c=>({id:String(c.id),cat:c.cat==='jardin'?'jardin':'piscine',type:c.type==='rules'?'rules':'steps',title:String(c.title),items:Array.isArray(c.items)?c.items.filter(i=>i&&i.id&&i.text).map(i=>({id:String(i.id),text:String(i.text),...(i.dur?{dur:String(i.dur)}:{})})):[]}))} : JSON.parse(JSON.stringify(PR_DEFAULT));
+      renderPratiques();
+    },()=>{});
+  }
+  renderPratiques();
+
+  /* ---------- Sauvegarde (export / import JSON) ---------- */
+  const BK_COLS=['entries','mesures','saisons','config'];
+  let lastBackup=null;
+  function renderBackup(){
+    $('bk-last').textContent = lastBackup ? 'Dernière : '+fmt(lastBackup)+' ('+agoTxt(daysAgo(lastBackup))+')' : 'Aucune sauvegarde';
+    $('bk-export').disabled=!db;
+    const hasData=(entries.length+mesures.length)>0;
+    const due= lastBackup ? daysAgo(lastBackup)>=30 : hasData;
+    $('bk-remind').hidden=!(loaded && db && due);
+    $('bk-remind-txt').textContent = lastBackup ? 'Sauvegarde mensuelle à faire : dernière le '+fmt(lastBackup)+' ('+agoTxt(daysAgo(lastBackup))+').' : 'Aucune sauvegarde du carnet pour l\'instant.';
+  }
+  async function buildBackup(){
+    const data={};
+    for(const col of BK_COLS){
+      const snap=await db.collection(col).get();
+      for(const d of snap.docs){ if(col==='config'&&d.id==='backup') continue; data[col+'/'+d.id]=d.data(); }
+    }
+    return JSON.stringify({app:'gestion-jardin-onex',version:1,exportedAt:new Date().toISOString(),data},null,1);
+  }
+  async function markBackup(){ lastBackup=todayISO(); renderBackup(); try{ await db.doc('config/backup').set({last:lastBackup}); }catch(_){} }
+  async function doExport(){
+    if(!db) return;
+    const msg=$('bk-msg'); msg.className='msg'; msg.textContent='Préparation…';
+    try{
+      const json=await buildBackup();
+      const fname='sauvegarde-jardin-onex_'+todayISO()+'.json';
+      const inClaude=!!(window.claude&&window.claude.use);
+      if(inClaude){
+        let dl=null; try{ dl=await window.claude.use('downloads'); }catch(_){}
+        if(!dl){ msg.className='msg err'; msg.textContent='Export indisponible dans cette vue.'; return; }
+        await dl.save({filename:fname,data:json});
+      } else {
+        const file=new File([json],fname,{type:'application/json'});
+        if(navigator.canShare && navigator.canShare({files:[file]})){
+          await navigator.share({files:[file],title:'Sauvegarde jardin Onex'});
+        } else {
+          const url=URL.createObjectURL(file); const a=document.createElement('a'); a.href=url; a.download=fname;
+          document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),4000);
+        }
+      }
+      await markBackup();
+      msg.textContent='Sauvegarde exportée : '+fname;
+    }catch(err){
+      msg.className='msg err';
+      msg.textContent=(err&&(err.name==='AbortError'||err.code==='declined'))?'Export annulé.':'L\'export a échoué. Réessayez.';
+    }
+  }
+  $('bk-export').addEventListener('click',doExport);
+  $('bk-remind-btn').addEventListener('click',doExport);
+  let pendingImport=null, impArmed=false;
+  $('bk-file').addEventListener('change',()=>{
+    const f=$('bk-file').files&&$('bk-file').files[0]; const im=$('bk-imp-msg'); im.className='msg'; im.textContent=''; $('bk-imp').hidden=true; pendingImport=null;
+    if(!f) return;
+    const r=new FileReader();
+    r.onload=()=>{
+      try{
+        const o=JSON.parse(r.result);
+        if(!o||o.app!=='gestion-jardin-onex'||typeof o.data!=='object') throw new Error('format');
+        const docs=Object.entries(o.data).filter(([k,v])=>{ const pts=k.split('/'); return pts.length===2 && BK_COLS.includes(pts[0]) && /^[A-Za-z0-9_\-.~:@+]+$/.test(pts[1]) && v && typeof v==='object'; });
+        const n=c=>docs.filter(([k])=>k.startsWith(c+'/')).length;
+        pendingImport=docs;
+        $('bk-imp-txt').textContent='Sauvegarde du '+(o.exportedAt?fmt(o.exportedAt.slice(0,10)):'?')+' : '+n('entries')+' interventions, '+n('mesures')+' mesures, '+n('saisons')+' saison(s), '+n('config')+' réglage(s).';
+        $('bk-imp').hidden=false; $('bk-imp-btn').disabled=!canEdit(); impArmed=false; $('bk-imp-btn').textContent='Restaurer (remplace le carnet actuel)';
+      }catch(_){ im.className='msg err'; im.textContent='Fichier non reconnu : choisissez un fichier de sauvegarde exporté depuis ce carnet.'; }
+    };
+    r.readAsText(f);
+  });
+  $('bk-imp-btn').addEventListener('click',async()=>{
+    if(!pendingImport||!canEdit()) return;
+    const b=$('bk-imp-btn');
+    if(!impArmed){ impArmed=true; b.textContent='Confirmer la restauration'; setTimeout(()=>{ if(impArmed){ impArmed=false; b.textContent='Restaurer (remplace le carnet actuel)'; } },5000); return; }
+    impArmed=false; b.disabled=true;
+    const im=$('bk-imp-msg'); im.className='msg'; im.textContent='Restauration en cours…';
+    try{
+      for(const col of BK_COLS){ const snap=await db.collection(col).get(); for(const d of snap.docs){ if(col==='config'&&d.id==='backup') continue; await db.doc(col+'/'+d.id).delete(); } }
+      for(const [k,v] of pendingImport){ await db.doc(k).set(v); }
+      im.textContent='Carnet restauré ('+pendingImport.length+' éléments).';
+      pendingImport=null; $('bk-imp').hidden=true; $('bk-file').value='';
+    }catch(err){
+      im.className='msg err';
+      if(err&&err.code==='invalid_argument'){ goReadOnly(); im.textContent="Vous n'avez pas les droits pour restaurer ce carnet."; }
+      else im.textContent='La restauration a échoué en cours de route. Relancez-la avec le même fichier.';
+    }finally{ b.disabled=!canEdit(); }
+  });
+  function subscribeBackup(){
+    db.doc('config/backup').onSnapshot(snap=>{ const d=snap.exists?snap.data():null; lastBackup=d&&typeof d.last==='string'?d.last:null; renderBackup(); },()=>{});
+  }
+
+  /* ---------- Vider le carnet ---------- */
+  function syncReset(){
+    const any=$('rs-data').checked||$('rs-adj').checked;
+    $('rs-btn').disabled= !canEdit() || !any || $('rs-confirm').value.trim().toUpperCase()!=='VIDER';
+  }
+  ['rs-data','rs-adj'].forEach(id=>$(id).addEventListener('change',syncReset));
+  $('rs-confirm').addEventListener('input',syncReset);
+  $('rs-btn').addEventListener('click',async()=>{
+    if(!canEdit()) return;
+    const doData=$('rs-data').checked, doAdj=$('rs-adj').checked;
+    const msg=$('rs-msg'); msg.className='msg'; msg.textContent='Suppression en cours…';
+    $('rs-btn').disabled=true;
+    let n=0;
+    try{
+      const paths=[];
+      if(doData){
+        for(const col of ['entries','mesures','saisons']){ const snap=await db.collection(col).get(); for(const d of snap.docs) paths.push(col+'/'+d.id); }
+      }
+      if(doAdj){ paths.push('config/debut','config/jardin-debut','config/jardin-fin','config/pratiques'); }
+      for(const pth of paths){ await db.doc(pth).delete(); n++; }
+      msg.textContent='Carnet vidé : '+n+' élément'+(n>1?'s':'')+' supprimé'+(n>1?'s':'')+'.';
+      $('rs-confirm').value='';
+    }catch(err){
+      msg.className='msg err';
+      if(err&&err.code==='invalid_argument'){ goReadOnly(); msg.textContent="Vous n'avez pas les droits pour vider ce carnet."; }
+      else msg.textContent='La suppression a été interrompue ('+n+' élément'+(n>1?'s':'')+' supprimé'+(n>1?'s':'')+'). Réessayez.';
+    }finally{ syncReset(); }
+  });
+
+  /* ---------- Onglets ---------- */
+  const TABS=['saisie','saison','recap','journal','pratiques'];
+  function showTab(name,focus){
+    if(!TABS.includes(name)) name='saisie';
+    for(const t of TABS){
+      const on=t===name;
+      $('p-'+t).hidden=!on;
+      const b=$('t-'+t); b.setAttribute('aria-selected',String(on)); b.tabIndex=on?0:-1;
+      if(on&&focus) b.focus();
+    }
+  }
+  document.querySelectorAll('.tabs button').forEach(b=>{
+    b.addEventListener('click',()=>{ const n=b.dataset.tab; showTab(n); try{ if(location.hash!=='#'+n) location.hash=n; }catch(_){} window.scrollTo(0,0); });
+    b.addEventListener('keydown',e=>{
+      const i=TABS.indexOf(b.dataset.tab);
+      if(e.key==='ArrowRight'||e.key==='ArrowLeft'){ e.preventDefault(); const n=TABS[(i+(e.key==='ArrowRight'?1:TABS.length-1))%TABS.length]; showTab(n,true); try{ location.hash=n; }catch(_){} }
+    });
+  });
+  window.addEventListener('hashchange',()=>showTab(location.hash.slice(1)));
+  showTab(location.hash.slice(1));
+
+  /* ---------- Stockage ---------- */
+  function showBanner(t){ const b=$('banner'); b.textContent=t; b.hidden=false; }
+  function goReadOnly(){ readOnly=true; try{ renderPratiques(); }catch(_){} showBanner('Lecture seule : vos droits ne permettent pas de modifier ce carnet.'); syncSubmit(); renderJournal(); renderSeason(); }
+  function renderAll(){ renderLast(); renderRecap(); renderJournal(); try{ renderBackup(); }catch(_){} }
+
+  buildActions(); renderAll(); renderSeason();
+
+  /* Stockage local : utilisé quand le fichier HTML est ouvert hors de claude.ai (données dans ce navigateur uniquement) */
+  function localDb(){
+    const KEY='gestion-jardin-onex';
+    let store={}; try{ store=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(_){ store={}; }
+    let canSave=true; try{ localStorage.setItem(KEY+'-test','1'); localStorage.removeItem(KEY+'-test'); }catch(_){ canSave=false; }
+    const subs=new Set();
+    const persist=()=>{ try{ localStorage.setItem(KEY,JSON.stringify(store)); }catch(_){} subs.forEach(f=>f()); };
+    const meta={fromCache:false,hasPendingWrites:false};
+    const docSnap=(path)=>{ const v=store[path]; return {id:path.split('/').pop(), exists:!!v, data:()=>v?JSON.parse(JSON.stringify(v)):undefined, metadata:meta}; };
+    const docRef=(path)=>({
+      set:async d=>{ store[path]=JSON.parse(JSON.stringify(d)); persist(); },
+      delete:async()=>{ delete store[path]; persist(); },
+      onSnapshot:(next)=>{ const f=()=>next(docSnap(path)); subs.add(f); setTimeout(f,0); return ()=>subs.delete(f); }
+    });
+    const colRef=(col)=>{
+      const q={
+        orderBy:()=>q,
+        get:async()=>{ const docs=Object.keys(store).filter(k=>k.startsWith(col+'/')&&k.split('/').length===2).map(docSnap); return {docs,size:docs.length,empty:!docs.length,metadata:meta}; },
+        add:async d=>{ const id=Date.now().toString(36)+Math.random().toString(36).slice(2,7); store[col+'/'+id]=JSON.parse(JSON.stringify(d)); persist(); return docRef(col+'/'+id); },
+        onSnapshot:(next)=>{ const f=()=>{ const docs=Object.keys(store).filter(k=>k.startsWith(col+'/')&&k.split('/').length===2).map(docSnap); next({docs,size:docs.length,empty:!docs.length,metadata:meta}); }; subs.add(f); setTimeout(f,0); return ()=>subs.delete(f); }
+      };
+      return q;
+    };
+    return {db:{doc:docRef,collection:colRef}, canSave};
+  }
+
+  (async()=>{
+    const inClaude = !!(window.claude && window.claude.use);
+    try{ db = inClaude ? await window.claude.use('db') : null; }catch(_){ db=null; }
+    if(!db){
+      const l=localDb(); db=l.db;
+      showBanner(l.canSave
+        ? 'Mode local : les données sont enregistrées dans ce navigateur uniquement (pas de synchronisation entre appareils).'
+        : 'Ce navigateur bloque le stockage local : les saisies seront perdues à la fermeture de la page.');
+    }
+    syncSubmit();
+    const timer=setTimeout(()=>{ $('loadnote').textContent="Données non joignables pour l'instant"; },10000);
+    db.collection('entries').orderBy('date','desc').onSnapshot(snap=>{
+      entries=snap.docs.map(d=>({id:d.id, ...d.data()})).filter(e=>e.date&&e.task);
+      entries.sort((a,b)=> a.date===b.date ? String(b.createdAt||'').localeCompare(String(a.createdAt||'')) : (a.date<b.date?1:-1));
+      if(!snap.metadata.fromCache){ clearTimeout(timer); $('loadnote').textContent=''; }
+      loaded=true; renderAll();
+    },()=>{
+      clearTimeout(timer); loaded=true; $('loadnote').textContent='';
+      showBanner("Le journal n'a pas pu être chargé. Rechargez la page plus tard.");
+      renderAll();
+    });
+    db.collection('mesures').orderBy('date','desc').onSnapshot(snap=>{
+      mesures=snap.docs.map(d=>({id:d.id, ...d.data()})).filter(m=>m.date&&m.task&&typeof m.value==='number');
+      renderAll();
+    },()=>{});
+    subscribeSeason();
+    subscribeSteps();
+    subscribePratiques();
+    subscribeBackup();
+  })();
+})();
+</script>
+
+</body>
+</html>
