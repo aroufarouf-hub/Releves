@@ -1,0 +1,806 @@
+{
+  "app": "todo-list",
+  "version": 2,
+  "exportedAt": "2026-11-18T08:44:48.108Z",
+  "taches": [
+    {
+      "id": 1794607078419,
+      "titre": "Dégustation vin",
+      "rub": "taches",
+      "ref": 1794607078419,
+      "done": true,
+      "ech": "pense",
+      "fav": false
+    },
+    {
+      "id": 1794607093698,
+      "titre": "Évent direction (tennis, F1)",
+      "rub": "taches",
+      "ref": 1794607093698,
+      "done": false,
+      "ech": "pense",
+      "fav": false
+    },
+    {
+      "id": 1794607732176,
+      "titre": "Offre actaris",
+      "rub": "taches",
+      "ref": 1794607732176,
+      "done": false,
+      "ech": "prochaine",
+      "fav": false
+    },
+    {
+      "id": 1794607761011,
+      "titre": "Offre Cherpines E3 et check budget Yves",
+      "rub": "taches",
+      "ref": 1794607761011,
+      "done": false,
+      "ech": "prochaine",
+      "fav": false
+    },
+    {
+      "id": 1794607835734,
+      "titre": "Commande stickers (mur, porte, timbres)",
+      "rub": "bu",
+      "ref": 1794607835734,
+      "done": false,
+      "ech": "prochaine",
+      "fav": false
+    },
+    {
+      "id": 1794608094146,
+      "titre": "Valider vin (type, qté, boîte)",
+      "rub": "taches",
+      "ref": 1794608094146,
+      "done": true,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794608109736,
+      "titre": "Valider site web",
+      "rub": "taches",
+      "ref": 1794608109736,
+      "done": true,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794608126842,
+      "titre": "Valider print et carte de vœux",
+      "rub": "taches",
+      "ref": 1794608126842,
+      "done": true,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794608161496,
+      "titre": "Check-list Bangr",
+      "rub": "bo",
+      "ref": 1794608161496,
+      "done": true,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794608188241,
+      "titre": "Check amélioration winbiz (groupements)",
+      "rub": "bo",
+      "ref": 1794951336562,
+      "done": false,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794608269434,
+      "titre": "Tableau rôtisserie",
+      "rub": "taches",
+      "ref": 1794608269434,
+      "done": true,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794608310968,
+      "titre": "Base OF",
+      "rub": "taches",
+      "ref": 1794608310968,
+      "done": false,
+      "ech": "pense",
+      "fav": false
+    },
+    {
+      "id": 1794608319925,
+      "titre": "Finaliser base PV",
+      "rub": "taches",
+      "ref": 1794608319925,
+      "done": true,
+      "ech": "pense",
+      "fav": false
+    },
+    {
+      "id": 1794608383425,
+      "titre": "Relancer Emilie OC VVGB",
+      "rub": "equipe",
+      "ref": 1794951335162,
+      "done": false,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794608519404,
+      "titre": "Décompte TGSJ 2",
+      "rub": "bo",
+      "ref": 1794951333312,
+      "done": false,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794608546239,
+      "titre": "Exemple liste projet Bangr",
+      "rub": "taches",
+      "ref": 1794951287512,
+      "done": false,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794608676662,
+      "titre": "Point entretien fin",
+      "rub": "bo",
+      "ref": 1794608676662,
+      "done": true,
+      "ech": "pense",
+      "fav": false
+    },
+    {
+      "id": 1794608693401,
+      "titre": "Point entretien fin d’année",
+      "rub": "bo",
+      "ref": 1794608693401,
+      "done": true,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794608884199,
+      "titre": "Répondre Martin",
+      "rub": "taches",
+      "ref": 1794951318694,
+      "done": false,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794608933631,
+      "titre": "AF4 : relancer Félix et élévation mur",
+      "rub": "equipe",
+      "ref": 1794951315592,
+      "done": false,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794610433011,
+      "titre": "Smart lunch",
+      "rub": "br",
+      "ref": 1794610433011,
+      "done": false,
+      "ech": "pense",
+      "fav": false
+    },
+    {
+      "id": 1794640031502,
+      "titre": "Paramètres teams (fond, bruit, nom,etc)",
+      "rub": "taches",
+      "ref": 1794640031502,
+      "done": false,
+      "ech": "pense",
+      "fav": false
+    },
+    {
+      "id": 1794640117476,
+      "titre": "Ajouter Jacques liste : Hello merci plutôt à domicile . 41 ch de la maille 1217 Meyrin",
+      "rub": "taches",
+      "ref": 1794640117476,
+      "done": true,
+      "ech": "pense",
+      "fav": false
+    },
+    {
+      "id": 1794641428869,
+      "titre": "Sortie fun fin d’année",
+      "rub": "br",
+      "ref": 1794641428869,
+      "done": true,
+      "ech": "prochaine",
+      "fav": false
+    },
+    {
+      "id": 1794692251384,
+      "titre": "Ajouter esm liste vœux",
+      "rub": "taches",
+      "ref": 1794692251384,
+      "done": true,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794757120107,
+      "titre": "Mail Valla code entrée",
+      "rub": "taches",
+      "ref": 1794757120107,
+      "done": true,
+      "ech": "prochaine",
+      "fav": false
+    },
+    {
+      "id": 1794779310734,
+      "titre": "Max Google business",
+      "rub": "taches",
+      "ref": 1794779310734,
+      "done": true,
+      "ech": "prochaine",
+      "fav": false
+    },
+    {
+      "id": 1794812443732,
+      "titre": "Tel Padel PLO mardi 12h",
+      "rub": "taches",
+      "ref": 1794812443732,
+      "done": true,
+      "ech": "prochaine",
+      "fav": false
+    },
+    {
+      "id": 1794817041085,
+      "titre": "Hik Connect",
+      "rub": "bu",
+      "ref": 1794817041085,
+      "done": false,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794817058056,
+      "titre": "Décompte rôtisserie",
+      "rub": "taches",
+      "ref": 1794817058056,
+      "done": true,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794817073251,
+      "titre": "Cadeau Nadine",
+      "rub": "ga",
+      "ref": 1794817073251,
+      "done": true,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794817109266,
+      "titre": "BdF mètres",
+      "rub": "ga",
+      "ref": 1794817109266,
+      "done": true,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794818058849,
+      "titre": "Factures carte de visite et crayons et stylo",
+      "rub": "bo",
+      "ref": 1794818058849,
+      "done": true,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794819178241,
+      "titre": "Validation Swisscom et Pittavino",
+      "rub": "taches",
+      "ref": 1794819178241,
+      "done": true,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794819406193,
+      "titre": "Facture finale GE 1.1 pour FIA",
+      "rub": "taches",
+      "ref": 1794819406193,
+      "done": true,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794819466138,
+      "titre": "Étoile : point prestations AMO",
+      "rub": "taches",
+      "ref": 1794819466138,
+      "done": true,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794823814856,
+      "titre": "Communication Baptiste lingot",
+      "rub": "taches",
+      "ref": 1794823814856,
+      "done": true,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794825536163,
+      "titre": "Feuilles Messerli à rachel",
+      "rub": "taches",
+      "ref": 1794825536163,
+      "done": false,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794825743704,
+      "titre": "Recap EIA",
+      "rub": "taches",
+      "ref": 1794825743704,
+      "done": false,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794826029388,
+      "titre": "TGSJ trame suivi financier",
+      "rub": "taches",
+      "ref": 1794826029388,
+      "done": true,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794826152596,
+      "titre": "Photo couloir",
+      "rub": "br",
+      "ref": 1794826152596,
+      "done": true,
+      "ech": "pense",
+      "fav": false
+    },
+    {
+      "id": 1794826985194,
+      "titre": "Cahier bienvenue",
+      "rub": "bu",
+      "ref": 1794826985194,
+      "done": false,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794826995365,
+      "titre": "Newsletter",
+      "rub": "bu",
+      "ref": 1794826995365,
+      "done": true,
+      "ech": "pense",
+      "fav": false
+    },
+    {
+      "id": 1794827049632,
+      "titre": "Analyse AO",
+      "rub": "bu",
+      "ref": 1794827049632,
+      "done": true,
+      "ech": "pense",
+      "fav": false
+    },
+    {
+      "id": 1794827179568,
+      "titre": "Newsletter décembre",
+      "rub": "bu",
+      "ref": 1794827179568,
+      "done": true,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794847925733,
+      "titre": "Check list",
+      "rub": "taches",
+      "ref": 1794847925733,
+      "done": true,
+      "ech": "prochaine",
+      "fav": false
+    },
+    {
+      "id": 1794848131143,
+      "titre": "Transmettre liste de contacts pour IA",
+      "rub": "taches",
+      "ref": 1794848131143,
+      "done": false,
+      "ech": "prochaine",
+      "fav": false
+    },
+    {
+      "id": 1794849762793,
+      "titre": "Lancer XXX",
+      "rub": "taches",
+      "ref": 1794849762793,
+      "done": true,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794909155590,
+      "titre": "Fin année : resto",
+      "rub": "taches",
+      "ref": 1794909155590,
+      "done": true,
+      "ech": "pense",
+      "fav": false
+    },
+    {
+      "id": 1794909175214,
+      "titre": "Fin année : resto Nadine + jéroboam 2021",
+      "rub": "ga",
+      "ref": 1794909175214,
+      "done": false,
+      "ech": "prochaine",
+      "fav": false
+    },
+    {
+      "id": 1794978553050,
+      "ref": 1794978553050,
+      "titre": "Organiser revue projet socifuwue fin année",
+      "rub": "taches",
+      "done": false,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794979335963,
+      "ref": 1794979345972,
+      "titre": "App fin d’année qui vérifie différentes choses au tomatiwuemenr",
+      "rub": "taches",
+      "done": false,
+      "ech": "prochaine",
+      "fav": false
+    }
+  ],
+  "perso": [
+    {
+      "id": 1794951554036,
+      "titre": "IA",
+      "rub": "todo",
+      "ref": 1794951554036,
+      "done": false,
+      "ech": "pense",
+      "fav": false,
+      "sub": [
+        {
+          "id": 1794951602156,
+          "titre": "Synchro en ligne",
+          "done": false
+        },
+        {
+          "id": 1794951698815,
+          "titre": "Tester notions",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 1794951672607,
+      "titre": "Week-end parents",
+      "rub": "c1794951655938",
+      "ref": 1794951672607,
+      "done": false,
+      "ech": "pense",
+      "fav": false
+    },
+    {
+      "id": 1794951728559,
+      "titre": "Ajouter carte ing Amazon",
+      "rub": "todo",
+      "ref": 1794951791016,
+      "done": false,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794951743722,
+      "titre": "Louis",
+      "rub": "todo",
+      "ref": 1794951743722,
+      "done": false,
+      "ech": "pense",
+      "fav": false,
+      "sub": [
+        {
+          "id": 1794951753737,
+          "titre": "Appareil photo",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 1794951782000,
+      "titre": "Colis chaussures",
+      "rub": "todo",
+      "ref": 1794951782000,
+      "done": false,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794951818016,
+      "titre": "Cadeau vin",
+      "rub": "c1794951655938",
+      "ref": 1794951818016,
+      "done": false,
+      "ech": "pense",
+      "fav": false,
+      "sub": [
+        {
+          "id": 1794951824385,
+          "titre": "Papa",
+          "done": false
+        },
+        {
+          "id": 1794951830119,
+          "titre": "Simon fête noel",
+          "done": false
+        },
+        {
+          "id": 1794951838058,
+          "titre": "Maciej sortie contas",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 1794951857084,
+      "titre": "Sortie parents",
+      "rub": "c1794951655938",
+      "ref": 1794951857084,
+      "done": false,
+      "ech": "pense",
+      "fav": false,
+      "sub": [
+        {
+          "id": 1794951868684,
+          "titre": "Hockey",
+          "done": false
+        },
+        {
+          "id": 1794951872987,
+          "titre": "Expo",
+          "done": false
+        },
+        {
+          "id": 1794951882823,
+          "titre": "Bricolage Louis",
+          "done": false
+        },
+        {
+          "id": 1794951891322,
+          "titre": "Balade collex",
+          "done": false
+        },
+        {
+          "id": 1794951902906,
+          "titre": "Tennis",
+          "done": false
+        },
+        {
+          "id": 1794951906075,
+          "titre": "Resto",
+          "done": false
+        },
+        {
+          "id": 1794951909141,
+          "titre": "Sapin",
+          "done": false
+        },
+        {
+          "id": 1794951921291,
+          "titre": "Couture",
+          "done": false
+        },
+        {
+          "id": 1794952435558,
+          "titre": "Transfert photo maman",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": 1794951957472,
+      "titre": "Purger radiateurs",
+      "rub": "maison",
+      "ref": 1794951957472,
+      "done": false,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794951974671,
+      "titre": "Assurance maladie",
+      "rub": "todo",
+      "ref": 1794951974671,
+      "done": false,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794951988581,
+      "titre": "Compte insta",
+      "rub": "todo",
+      "ref": 1794951988581,
+      "done": false,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794951996913,
+      "titre": "Montre cha",
+      "rub": "todo",
+      "ref": 1794951996913,
+      "done": false,
+      "ech": "semaine",
+      "fav": false,
+      "sub": []
+    },
+    {
+      "id": 1794952015135,
+      "titre": "Relancer barras",
+      "rub": "todo",
+      "ref": 1794952015135,
+      "done": false,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794952021180,
+      "titre": "Ranger garage",
+      "rub": "maison",
+      "ref": 1794952021180,
+      "done": false,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794952033577,
+      "titre": "Nettoyer plan travail",
+      "rub": "maison",
+      "ref": 1794952033577,
+      "done": false,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794952054464,
+      "titre": "Envoi certificat Lumia",
+      "rub": "maison",
+      "ref": 1794952054464,
+      "done": false,
+      "ech": "semaine",
+      "fav": false
+    },
+    {
+      "id": 1794952080108,
+      "titre": "Transfert OneDrive",
+      "rub": "todo",
+      "ref": 1794952080108,
+      "done": false,
+      "ech": "prochaine",
+      "fav": false
+    },
+    {
+      "id": 1794952380812,
+      "ref": 1794952380812,
+      "titre": "Permis international",
+      "rub": "c1794952357843",
+      "done": false,
+      "ech": "prochaine",
+      "fav": false
+    },
+    {
+      "id": 1794952403129,
+      "ref": 1794952403129,
+      "titre": "Go pro enfants",
+      "rub": "todo",
+      "done": false,
+      "ech": "prochaine",
+      "fav": false
+    },
+    {
+      "id": 1794952471219,
+      "ref": 1794952471219,
+      "titre": "Mémoire Gmail",
+      "rub": "todo",
+      "done": false,
+      "ech": "prochaine",
+      "fav": false
+    },
+    {
+      "id": 1794952488266,
+      "ref": 1794952488266,
+      "titre": "Leroy Merlin",
+      "rub": "maison",
+      "done": false,
+      "ech": "semaine",
+      "fav": false,
+      "sub": [
+        {
+          "id": 1794952498004,
+          "titre": "Papa",
+          "done": false
+        },
+        {
+          "id": 1794952506844,
+          "titre": "Ventilation sdb",
+          "done": false
+        },
+        {
+          "id": 1794952511422,
+          "titre": "Étagère louis",
+          "done": false
+        }
+      ]
+    }
+  ],
+  "rubriques": [
+    {
+      "key": "c1794951655938",
+      "label": "Memo",
+      "color": "#0a84ff",
+      "g": 0,
+      "esp": "perso"
+    },
+    {
+      "key": "c1794952357843",
+      "label": "Soph",
+      "color": "#af52de",
+      "g": 0,
+      "esp": "perso"
+    }
+  ],
+  "couleurs": {
+    "bo": "#e0a800",
+    "rvmemo": "#0a84ff",
+    "taches": "#0a84ff",
+    "wg": "#30b0c7",
+    "equipe": "#30b0c7",
+    "ma": "#e0a800",
+    "bu": "#ff9500",
+    "br": "#5856d6",
+    "todo": "#0a84ff",
+    "maison": "#00a88f",
+    "courses": "#ff2d55",
+    "c1794951655938": "#1c2951"
+  },
+  "couleursEch": {
+    "j": "#ff2d55",
+    "semaine": "#e0a800",
+    "prochaine": "#a2845e",
+    "pense": "#1c2951",
+    "c1794953404118": "#ff9500"
+  },
+  "echeances": [
+    {
+      "key": "c1794953404118",
+      "label": "J+1",
+      "u": "j",
+      "n": 1
+    }
+  ],
+  "supprimees": [
+    "enfants"
+  ]
+}
